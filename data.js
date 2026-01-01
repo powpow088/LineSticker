@@ -40,6 +40,10 @@ const CHARACTER_TEMPLATES = {
         name: "🦕 恐龍",
         prompt: "A friendly baby dinosaur, small and round, pastel colors"
     },
+    reference_image: {
+        name: "📷 使用參考圖",
+        prompt: "Based on the attached reference image character"
+    },
     custom: {
         name: "✏️ 自訂角色",
         prompt: ""
@@ -141,20 +145,16 @@ const THEMES = {
 // 風格選項
 const STYLES = {
     cute_chibi: {
-        name: "🎀 可愛 Q 版",
+        name: "🎀 Q版",
         prompt: "Cute chibi style, adorable, lively, 2D flat sticker art, thick white outline, vibrant colors"
     },
     realistic: {
-        name: "📷 照片級寫實",
+        name: "📷 寫實",
         prompt: "Photo-realistic style, precise lighting and shadows, detailed textures, hyper-realistic"
     },
     figurine_3d: {
         name: "🧸 3D 公仔",
         prompt: "3D figurine style, rounded shapes, soft lighting, material textures, clay-like appearance"
-    },
-    flat: {
-        name: "📐 扁平插畫",
-        prompt: "Flat illustration style, minimalist, clean simple lines, geometric shapes, modern design"
     },
     storybook: {
         name: "📖 童書繪本",
@@ -165,19 +165,15 @@ const STYLES = {
         prompt: "Japanese Chibi style, big head small body, cel-shaded, anime-inspired, expressive"
     },
     handdrawn: {
-        name: "✏️ 童趣手繪",
+        name: "✏️ 手繪",
         prompt: "Hand-drawn style, irregular lines, playful, childlike charm, sketch-like texture"
     },
     watercolor: {
-        name: "🎨 水彩風格",
+        name: "🎨 水彩",
         prompt: "Watercolor illustration style, soft color bleeding, artistic, delicate brushstrokes"
     },
-    pixel: {
-        name: "👾 像素復古",
-        prompt: "Pixel art style, 8-bit retro gaming aesthetic, blocky, nostalgic"
-    },
     neon: {
-        name: "✨ 霓虹潮流",
+        name: "✨ 霓虹",
         prompt: "Neon pop style, vibrant glowing colors, trendy, urban street art vibe"
     }
 };

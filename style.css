@@ -324,6 +324,32 @@ body {
     margin-top: 12px;
 }
 
+/* Reference Instruction */
+.ref-instruction {
+    margin-top: 12px;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.instruction-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.instruction-content .icon {
+    font-size: 1.2rem;
+}
+
+.instruction-content p {
+    margin: 0;
+}
+
 /* Preview Panel */
 .preview-panel {
     background: var(--bg-card);

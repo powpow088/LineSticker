@@ -28,7 +28,10 @@ const elements = {
     loadSettingsBtn: document.getElementById('loadSettingsBtn'),
     clearSettingsBtn: document.getElementById('clearSettingsBtn'),
     copyStatus: document.getElementById('copyStatus'),
-    toast: document.getElementById('toast')
+    toast: document.getElementById('toast'),
+
+    // Reference Image
+    refImageInstruction: document.getElementById('refImageInstruction')
 };
 
 // =========================================
@@ -99,11 +102,22 @@ function populateSelects() {
 function bindEvents() {
     // Character Template Change
     elements.characterTemplate.addEventListener('change', (e) => {
-        if (e.target.value === 'custom') {
+        const val = e.target.value;
+
+        // Custom Character Textarea
+        if (val === 'custom') {
             elements.characterCustom.classList.remove('hidden');
         } else {
             elements.characterCustom.classList.add('hidden');
         }
+
+        // Reference Image Instruction
+        if (val === 'reference_image') {
+            elements.refImageInstruction.classList.remove('hidden');
+        } else {
+            elements.refImageInstruction.classList.add('hidden');
+        }
+
         updatePrompt();
     });
 
@@ -129,6 +143,7 @@ function bindEvents() {
         updatePrompt();
     });
 
+    // Background Color
     elements.bgColor.addEventListener('change', (e) => {
         if (e.target.value === 'custom') {
             elements.customBgColor.classList.remove('hidden');
@@ -146,6 +161,8 @@ function bindEvents() {
     elements.saveSettingsBtn.addEventListener('click', saveSettings);
     elements.loadSettingsBtn.addEventListener('click', loadSettings);
     elements.clearSettingsBtn.addEventListener('click', clearSettings);
+
+
 }
 
 // =========================================
@@ -236,6 +253,17 @@ function generatePrompt() {
         characterPrompt = CHARACTER_TEMPLATES[charKey]?.prompt || '';
     }
 
+    // Add reference image instruction if enabled
+    const hasRefImage = charKey === 'reference_image';
+    let refImageInstruction = '';
+    if (hasRefImage) {
+        refImageInstruction = `
+⚠️ 重要：請根據我附上的參考圖片中的角色來設計貼圖。
+保持參考圖中角色的：外觀特徵、服裝風格、顏色配色。
+但可以改變表情和姿勢來配合各貼圖內容。
+`;
+    }
+
     // Get Style
     const styleKey = elements.styleSelect.value;
     const stylePrompt = STYLES[styleKey]?.prompt || '';
@@ -299,7 +327,8 @@ function generatePrompt() {
   - NO grid lines, borders, dividers, or separators between stickers.
   - NO white lines, NO frames, NO outlines around individual stickers.
   - Characters should have a visible outline/stroke to separate from green background.
-  - The green must be uniform and continuous across the entire canvas.`;
+  - The green must be uniform and continuous across the entire canvas.
+  - **Do NOT use green color** for the character's clothing or accessories to prevent chroma key issues.`;
     }
 
     if (!isNoText && textLanguagePrompt) {
@@ -307,7 +336,7 @@ function generatePrompt() {
     }
 
     // Generate Final Prompt
-    const prompt = `**[Role & Style]**
+    const prompt = `${refImageInstruction}**[Role & Style]**
 Create a "Character Sheet" containing ${count} distinct sticker designs arranged in a ${layoutInfo.grid} grid.
 **Canvas:** ${layoutInfo.width}×${layoutInfo.height} px (${layoutInfo.cols} columns × ${layoutInfo.rows} rows). Each sticker cell is exactly 370×320 px. NO extra margins or padding.
 **Style:** ${stylePrompt}, clean background.
@@ -426,6 +455,12 @@ function clearSettings() {
     localStorage.removeItem('lineStickerSettings');
     showToast('已清除儲存的設定', 'success');
 }
+
+// =========================================
+// Reference Image Handlers
+// =========================================
+
+
 
 // =========================================
 // Toast Notification
