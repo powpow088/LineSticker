@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE 貼圖 Prompt 產生器</title>
+    <meta name="description" content="快速產生 LINE 貼圖的 AI 圖像生成 Prompt，支援多種主題、風格和角色模板">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>🎨 LINE 貼圖 Prompt 產生器</h1>
+            <p class="subtitle">快速產生 AI 繪圖提示詞</p>
+            <nav class="header-nav">
+                <a href="image-processor.html" class="btn btn-primary">🖼️ 圖片處理器 →</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel: Settings -->
+            <aside class="settings-panel">
+                <!-- Character Template -->
+                <section class="setting-group">
+                    <h3 class="setting-title">
+                        <span class="icon">👤</span> 角色模板
+                    </h3>
+                    <select id="characterTemplate" class="select-input">
+                        <!-- Populated by JS -->
+                    </select>
+                    <div id="characterCustom" class="custom-input-group hidden">
+                        <textarea id="customCharacter" class="textarea-input" placeholder="輸入自訂角色描述..."></textarea>
+                    </div>
+                </section>
+
+                <!-- Theme Selection -->
+                <section class="setting-group">
+                    <h3 class="setting-title">
+                        <span class="icon">🎭</span> 主題
+                    </h3>
+                    <select id="themeSelect" class="select-input">
+                        <!-- Populated by JS -->
+                    </select>
+                </section>
+
+                <!-- Style Selection -->
+                <section class="setting-group">
+                    <h3 class="setting-title">
+                        <span class="icon">🎨</span> 風格
+                    </h3>
+                    <select id="styleSelect" class="select-input">
+                        <!-- Populated by JS -->
+                    </select>
+                </section>
+
+                <!-- Text Settings -->
+                <section class="setting-group">
+                    <h3 class="setting-title">
+                        <span class="icon">✏️</span> 文字設定
+                    </h3>
+                    <div class="sub-setting">
+                        <label>風格</label>
+                        <select id="textStyle" class="select-input select-small">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="sub-setting">
+                        <label>位置</label>
+                        <select id="textPosition" class="select-input select-small">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="sub-setting">
+                        <label>語言</label>
+                        <select id="textLanguage" class="select-input select-small">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Sticker Items -->
+                <section class="setting-group sticker-items-group">
+                    <h3 class="setting-title">
+                        <span class="icon">📋</span> 貼圖項目
+                        <span class="item-count" id="itemCount">(6 項)</span>
+                    </h3>
+                    <div id="stickerItems" class="sticker-items">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- Output Settings -->
+                <section class="setting-group">
+                    <h3 class="setting-title">
+                        <span class="icon">🖼️</span> 輸出設定
+                    </h3>
+                    <div class="sub-setting">
+                        <label>數量</label>
+                        <select id="outputCount" class="select-input select-small">
+                            <option value="1">1 張</option>
+                            <option value="4">4 張</option>
+                            <option value="6">6 張</option>
+                            <option value="8">8 張</option>
+                            <option value="9" selected>9 張</option>
+                            <option value="12">12 張</option>
+                            <option value="16">16 張</option>
+                            <option value="20">20 張</option>
+                            <option value="24">24 張</option>
+                        </select>
+                    </div>
+                    <div class="sub-setting">
+                        <label>背景</label>
+                        <select id="bgColor" class="select-input select-small">
+                            <option value="green" selected>🟢 綠幕（方便去背）</option>
+                            <option value="white">純白 #FFFFFF</option>
+                            <option value="custom">自訂顏色</option>
+                        </select>
+                    </div>
+                    <div id="customBgColor" class="sub-setting hidden">
+                        <label>顏色</label>
+                        <input type="color" id="bgColorPicker" value="#FFFFFF" class="color-picker">
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Right Panel: Preview -->
+            <section class="preview-panel">
+                <div class="preview-header">
+                    <h2>📋 Prompt 預覽</h2>
+                    <div class="preview-actions">
+                        <button id="copyBtn" class="btn btn-primary">
+                            <span class="btn-icon">📋</span> 複製
+                        </button>
+                        <button id="resetBtn" class="btn btn-secondary">
+                            <span class="btn-icon">🔄</span> 重設
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-content">
+                    <pre id="promptOutput" class="prompt-output"></pre>
+                </div>
+                <div class="preview-footer">
+                    <span id="copyStatus" class="copy-status"></span>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-actions">
+                <button id="saveSettingsBtn" class="btn btn-ghost">
+                    <span class="btn-icon">💾</span> 儲存設定
+                </button>
+                <button id="loadSettingsBtn" class="btn btn-ghost">
+                    <span class="btn-icon">📂</span> 載入設定
+                </button>
+                <button id="clearSettingsBtn" class="btn btn-ghost">
+                    <span class="btn-icon">🗑️</span> 清除設定
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
