@@ -60,7 +60,13 @@ const THEMES = {
             { action: "Giving thumbs up", text: "嗨" },
             { action: "Peeking from corner", text: "在嗎？" },
             { action: "Jumping with excitement", text: "好久不見" },
-            { action: "Blowing a kiss", text: "想你囉" }
+            { action: "Blowing a kiss", text: "想你囉" },
+            { action: "Waving goodbye", text: "掰掰" },
+            { action: "Looking at phone", text: "晚點聊" },
+            { action: "Waiting patiently", text: "等你唷" },
+            { action: "Running towards camera", text: "來了來了" },
+            { action: "Hiding behind door", text: "找我嗎" },
+            { action: "Yawning and waving", text: "要睡了掰" }
         ]
     },
     care: {
@@ -71,7 +77,13 @@ const THEMES = {
             { action: "Holding an umbrella", text: "記得帶傘" },
             { action: "Stretching with a yawn", text: "早安" },
             { action: "Under a cozy blanket", text: "晚安" },
-            { action: "Eating a meal happily", text: "記得吃飯" }
+            { action: "Eating a meal happily", text: "記得吃飯" },
+            { action: "Holding a water bottle", text: "多喝水" },
+            { action: "Doing stretching exercise", text: "注意身體" },
+            { action: "Sitting on sofa relaxed", text: "休息一下" },
+            { action: "Wearing a scarf", text: "小心感冒" },
+            { action: "Holding medicine", text: "吃藥了嗎" },
+            { action: "Walking in park", text: "有空出來走走" }
         ]
     },
     festivals: {
@@ -82,7 +94,13 @@ const THEMES = {
             { action: "Holding a lantern", text: "元宵節快樂" },
             { action: "Holding a mooncake", text: "中秋節快樂" },
             { action: "Looking at the moon", text: "花好月圓" },
-            { action: "Wearing Santa hat", text: "聖誕快樂" }
+            { action: "Wearing Santa hat", text: "聖誕快樂" },
+            { action: "Holding zongzi", text: "端午節快樂" },
+            { action: "Wearing witch costume", text: "萬聖節快樂" },
+            { action: "With birthday cake", text: "生日快樂" },
+            { action: "Holding heart gift", text: "情人節快樂" },
+            { action: "Giving carnation flower", text: "母親節快樂" },
+            { action: "With necktie gift", text: "父親節快樂" }
         ]
     },
     love: {
@@ -93,7 +111,13 @@ const THEMES = {
             { action: "Hugging a pillow shyly", text: "想你" },
             { action: "Making heart with hands", text: "比心" },
             { action: "Blushing with hearts around", text: "好喜歡你" },
-            { action: "With couple rings", text: "永遠在一起" }
+            { action: "With couple rings", text: "永遠在一起" },
+            { action: "In bed with phone", text: "睡前想你" },
+            { action: "Morning stretch with smile", text: "今天也愛你" },
+            { action: "Opening arms for hug", text: "抱抱" },
+            { action: "Cheering with sparkles", text: "你最棒" },
+            { action: "Looking at distance", text: "想見你" },
+            { action: "Happy couple pose", text: "在一起好幸福" }
         ]
     },
     daily: {
@@ -104,7 +128,13 @@ const THEMES = {
             { action: "Thinking pose", text: "讓我想想" },
             { action: "Shrugging shoulders", text: "隨便你" },
             { action: "Checking time on watch", text: "等一下" },
-            { action: "Running in a hurry", text: "我先走了" }
+            { action: "Running in a hurry", text: "我先走了" },
+            { action: "Nodding with understanding", text: "了解" },
+            { action: "Making OK hand sign", text: "OK" },
+            { action: "Typing on phone busy", text: "在忙" },
+            { action: "Rushing with speed lines", text: "馬上來" },
+            { action: "Crossing arms saying no", text: "不行" },
+            { action: "Casual shrug", text: "沒意見" }
         ]
     },
     emotions: {
@@ -115,7 +145,13 @@ const THEMES = {
             { action: "Angry with steam", text: "生氣氣" },
             { action: "Shocked with wide eyes", text: "什麼！" },
             { action: "Sleepy with zzz", text: "好睏" },
-            { action: "Sweating nervously", text: "緊張" }
+            { action: "Sweating nervously", text: "緊張" },
+            { action: "Jumping with joy", text: "開心" },
+            { action: "Facepalm gesture", text: "傻眼" },
+            { action: "Blushing covering face", text: "害羞" },
+            { action: "Sighing with droopy eyes", text: "無奈" },
+            { action: "Excited with sparkles", text: "興奮" },
+            { action: "Dizzy with spirals", text: "暈倒" }
         ]
     },
     work: {
@@ -126,7 +162,13 @@ const THEMES = {
             { action: "Exhausted at desk", text: "好累" },
             { action: "Holding coffee", text: "先喝咖啡" },
             { action: "High-fiving", text: "合作愉快" },
-            { action: "Saluting", text: "收到！" }
+            { action: "Saluting", text: "收到！" },
+            { action: "Fist pump motivation", text: "加油" },
+            { action: "Melting on desk", text: "快撐不住" },
+            { action: "Arms up celebration", text: "終於完成" },
+            { action: "At meeting table", text: "開會中" },
+            { action: "With luggage vacation mode", text: "放假囉" },
+            { action: "Head exploding", text: "要爆炸了" }
         ]
     },
     thanks: {
@@ -137,7 +179,64 @@ const THEMES = {
             { action: "Praying hands", text: "拜託" },
             { action: "Apologetic bow", text: "對不起" },
             { action: "Kneeling with regret", text: "原諒我" },
-            { action: "Clapping hands", text: "太棒了" }
+            { action: "Clapping hands", text: "太棒了" },
+            { action: "Bowing with hands together", text: "麻煩你了" },
+            { action: "Wiping sweat relieved", text: "辛苦了" },
+            { action: "Scratching head embarrassed", text: "不好意思" },
+            { action: "Hands in prayer thankful", text: "感恩" },
+            { action: "Hugging happily", text: "幫大忙了" },
+            { action: "Jumping with gratitude", text: "超感謝" }
+        ]
+    },
+    motivation: {
+        name: "💪 加油打氣",
+        items: [
+            { action: "Fist pump energetically", text: "加油" },
+            { action: "Cheering with pompoms", text: "你可以的" },
+            { action: "Giving thumbs up confidently", text: "相信自己" },
+            { action: "Running with determination", text: "衝啊" },
+            { action: "Flexing muscles", text: "我最強" },
+            { action: "Pointing forward", text: "往前衝" },
+            { action: "Standing on mountain top", text: "我做到了" },
+            { action: "High-fiving self", text: "給自己鼓掌" },
+            { action: "Breaking through wall", text: "突破極限" },
+            { action: "Sunrise stretching", text: "新的一天" },
+            { action: "Medal on chest", text: "冠軍是我" },
+            { action: "Flying with cape", text: "超越自己" }
+        ]
+    },
+    positive: {
+        name: "🌟 正能量語錄",
+        items: [
+            { action: "Looking at stars", text: "夢想會實現" },
+            { action: "Holding light bulb", text: "靈感來了" },
+            { action: "Growing plant", text: "慢慢變好" },
+            { action: "Butterfly emerging", text: "蛻變中" },
+            { action: "Sunshine pose", text: "今天也要開心" },
+            { action: "Heart in hands", text: "愛自己" },
+            { action: "Peaceful meditation", text: "放輕鬆" },
+            { action: "Rainbow background", text: "雨後天晴" },
+            { action: "Climbing ladder", text: "一步一步來" },
+            { action: "Planting seed", text: "播種希望" },
+            { action: "Open arms to sky", text: "感謝這一切" },
+            { action: "Smiling through tears", text: "笑著面對" }
+        ]
+    },
+    success: {
+        name: "🏆 成功慶祝",
+        items: [
+            { action: "Popping champagne", text: "成功了" },
+            { action: "Throwing confetti", text: "恭喜" },
+            { action: "Holding trophy", text: "第一名" },
+            { action: "Graduation cap throw", text: "畢業快樂" },
+            { action: "Money rain", text: "發財了" },
+            { action: "Victory pose", text: "勝利" },
+            { action: "Celebration dance", text: "太棒了" },
+            { action: "Fireworks background", text: "慶祝" },
+            { action: "Cutting ribbon", text: "開幕大吉" },
+            { action: "Clinking glasses", text: "乾杯" },
+            { action: "Red carpet pose", text: "VIP 登場" },
+            { action: "Taking a bow", text: "謝謝大家" }
         ]
     }
 };
@@ -149,7 +248,7 @@ const STYLES = {
         prompt: "Cute chibi style, adorable, lively, 2D flat sticker art, thick white outline, vibrant colors"
     },
     realistic: {
-        name: "📷 寫實",
+        name: "📷 照片寫實",
         prompt: "Photo-realistic style, precise lighting and shadows, detailed textures, hyper-realistic"
     },
     figurine_3d: {
@@ -157,60 +256,72 @@ const STYLES = {
         prompt: "3D figurine style, rounded shapes, soft lighting, material textures, clay-like appearance"
     },
     storybook: {
-        name: "📖 童書繪本",
+        name: "📖 繪本",
         prompt: "Warm children's book illustration style, soft pastel colors, whimsical, imaginative"
     },
     anime_chibi: {
-        name: "🌸 日系 Chibi",
+        name: "🌸 Chibi",
         prompt: "Japanese Chibi style, big head small body, cel-shaded, anime-inspired, expressive"
     },
     handdrawn: {
-        name: "✏️ 手繪",
+        name: "✏️ 手繪風格",
         prompt: "Hand-drawn style, irregular lines, playful, childlike charm, sketch-like texture"
     },
     watercolor: {
-        name: "🎨 水彩",
+        name: "🎨 水彩風格",
         prompt: "Watercolor illustration style, soft color bleeding, artistic, delicate brushstrokes"
     },
     neon: {
         name: "✨ 霓虹",
         prompt: "Neon pop style, vibrant glowing colors, trendy, urban street art vibe"
+    },
+    gradient: {
+        name: "🌈 漸層彩虹",
+        prompt: "Vibrant gradient colors, rainbow palette, colorful, smooth color transitions"
+    },
+    game: {
+        name: "🎮 遊戲卡通",
+        prompt: "Game character style, bold colors, dynamic poses, energetic, gaming aesthetic"
     }
 };
 
 // 文字風格
 const TEXT_STYLES = {
-    default: {
-        name: "🔘 預設（不指定）",
-        prompt: ""
+    chibi_pop_art: {
+        name: "🎀 可愛Q版 Pop Art",
+        prompt: "可愛 Q 版 Pop Art 字型, bold rounded cute text with thick white outline, vibrant colorful, playful and adorable"
     },
-    bubble: {
-        name: "💬 標準氣泡框",
-        prompt: "Text in a speech bubble with white background"
+    festival: {
+        name: "🎀 漸層圓體",
+        prompt: "Bold rounded cute Chinese font with white outline stroke. Warm and soft color palette (soft red, warm orange, gentle brown). Subtle gradient effect, harmonious with the character style"
     },
-    floating: {
-        name: "✨ 無框文字",
-        prompt: "Bold text floating next to character, no background"
-    },
-    handwritten: {
-        name: "✏️ 手寫風格",
-        prompt: "Hand-written style text, casual and playful"
-    },
-    neon: {
-        name: "💡 霓虹發光",
-        prompt: "Neon glowing text effect"
-    },
-    embossed: {
-        name: "🔲 立體浮雕",
-        prompt: "3D embossed text with shadow"
+    cute_outline: {
+        name: "🐰 可愛描邊",
+        prompt: "Bold rounded cute font with thick white outline stroke. Warm brown/chocolate solid color text, no gradient. Simple and clean, highly readable"
     },
     comic: {
         name: "💥 漫畫音效",
         prompt: "Comic-style text with action lines"
     },
+    mixed_styles: {
+        name: "🎨 混合風格",
+        prompt: "For each sticker, automatically choose the most suitable text style based on the emotion and context: Happy/Festive → warm rounded font with gradient; Cute/Shy → brown outlined text; Excited/Surprised → comic style with action lines; Elegant/Thanks → handwritten style; Mysterious/Halloween → neon glowing; Important/Emphasis → 3D embossed. Use thick white outline on all text."
+    },
+    dynamic: {
+        name: "🎭 情境混搭",
+        prompt: "Vary the text style for each sticker based on its emotion. Use bubbly rounded text for happy emotions, bold comic text for excited emotions, soft handwritten text for calm emotions. Be creative with text colors and effects"
+    },
+    neon: {
+        name: "💡 霓虹發光",
+        prompt: "Neon glowing text effect"
+    },
     rounded: {
         name: "⭕ 可愛圓體",
         prompt: "Cute rounded bubble text"
+    },
+    handwritten: {
+        name: "✏️ 手寫風格",
+        prompt: "Hand-written style text, casual and playful"
     },
     calligraphy: {
         name: "🖌️ 書法風格",
@@ -219,6 +330,18 @@ const TEXT_STYLES = {
     cartoon: {
         name: "🔤 卡通斜體",
         prompt: "Cartoon italic bold text"
+    },
+    embossed: {
+        name: "🔲 立體浮雕",
+        prompt: "3D embossed text with shadow"
+    },
+    bubble: {
+        name: "💬 標準氣泡框",
+        prompt: "Text in a speech bubble with white background"
+    },
+    floating: {
+        name: "✨ 無框文字",
+        prompt: "Bold text floating next to character, no background"
     }
 };
 

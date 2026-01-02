@@ -8,7 +8,7 @@ Create a comprehensive "Style Reference Sheet" for LINE Stickers.
 ---
 
 ### **Section 1: Art Styles (Visual Styles)**
-Generate a visual example of the same hamster character in each of the following 10 styles. 
+Generate a visual example of  A cute chibi girl with big round sparkling eyes, pink cheeks character in each of the following 10 styles. 
 Label each cell with the style name.
 
 1. **🎀 可愛 Q 版:** Cute chibi style, adorable, lively, 2D flat sticker art, thick white outline.

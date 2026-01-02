@@ -381,3 +381,15 @@ Generate 6 variations. **CRITICAL:** Try to render the Chinese text exactly as w
 3. 建立 JS 資料結構（主題、風格、角色模板）
 4. 實作 prompt 組合邏輯
 5. 加入互動功能（即時預覽、複製）
+
+
+上傳步驟
+前往 LINE Creators Market
+登入/註冊帳號
+建立新貼圖
+上傳：
+main.png（需另外製作）
+tab.png（需另外製作）
+解壓縮的貼圖 PNG 檔案
+填寫標題、描述、分類
+送審（約 1~3 天）

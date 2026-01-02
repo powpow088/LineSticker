@@ -30,6 +30,11 @@ const elements = {
     copyStatus: document.getElementById('copyStatus'),
     toast: document.getElementById('toast'),
 
+    // New Options
+    characterOutline: document.getElementById('characterOutline'),
+    vectorArt: document.getElementById('vectorArt'),
+    vectorArtOption: document.getElementById('vectorArtOption'),
+
     // Reference Image
     refImageInstruction: document.getElementById('refImageInstruction')
 };
@@ -42,6 +47,13 @@ function init() {
     populateSelects();
     bindEvents();
     loadThemeItems('greetings');
+
+    // Initialize vector art option visibility based on default style
+    const chibiStyles = ['cute_chibi', 'anime_chibi'];
+    if (chibiStyles.includes(elements.styleSelect.value)) {
+        elements.vectorArtOption.classList.remove('hidden');
+    }
+
     updatePrompt();
 }
 
@@ -129,13 +141,26 @@ function bindEvents() {
         updatePrompt();
     });
 
-    // Style Change
-    elements.styleSelect.addEventListener('change', updatePrompt);
+    // Style Change - show/hide vector art option for chibi styles
+    elements.styleSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const chibiStyles = ['cute_chibi', 'anime_chibi'];
+        if (chibiStyles.includes(val)) {
+            elements.vectorArtOption.classList.remove('hidden');
+        } else {
+            elements.vectorArtOption.classList.add('hidden');
+        }
+        updatePrompt();
+    });
 
     // Text Settings Change
     elements.textStyle.addEventListener('change', updatePrompt);
     elements.textPosition.addEventListener('change', updatePrompt);
     elements.textLanguage.addEventListener('change', updatePrompt);
+
+    // New Options Change
+    elements.characterOutline.addEventListener('change', updatePrompt);
+    elements.vectorArt.addEventListener('change', updatePrompt);
 
     // Output Settings Change
     elements.outputCount.addEventListener('change', () => {
@@ -322,24 +347,45 @@ function generatePrompt() {
     // Add strict green screen instructions
     if (isGreenScreen) {
         constraintsList += `
-* **CRITICAL - GREEN SCREEN RULES:**
-  - The ENTIRE background must be solid bright green (#00FF00).
-  - NO grid lines, borders, dividers, or separators between stickers.
-  - NO white lines, NO frames, NO outlines around individual stickers.
-  - Characters should have a visible outline/stroke to separate from green background.
-  - The green must be uniform and continuous across the entire canvas.
-  - **Do NOT use green color** for the character's clothing or accessories to prevent chroma key issues.`;
+* **⚠️ CRITICAL - GREEN SCREEN RULES (MUST FOLLOW):**
+  - The ENTIRE background must be ONE SINGLE CONTINUOUS solid bright green (#00FF00).
+  - ABSOLUTELY NO grid lines, borders, dividers, frames, or separators between stickers.
+  - ABSOLUTELY NO white lines or any visual separation between sticker cells.
+  - The green background must flow seamlessly across the entire canvas as ONE piece.
+  - Characters should have a visible white outline/stroke to separate from green background.
+  - **Do NOT use green color** for the character's clothing or accessories.
+  - Think of the canvas as ONE green paper with characters placed on it, NOT individual cells.`;
     }
 
-    if (!isNoText && textLanguagePrompt) {
-        constraintsList += `\n* **Text Rendering:** Text must be legible, ${textLanguagePrompt}, distinct from the background.`;
+    // Add text rendering instruction (for all except "none")
+    if (!isNoText) {
+        if (textLanguagePrompt) {
+            constraintsList += `\n* **Text Rendering:** Text must be legible, ${textLanguagePrompt}, distinct from the background. Render each character EXACTLY as specified - do not invent or modify characters.`;
+        } else {
+            constraintsList += `\n* **Text Rendering:** Text must be legible and distinct from the background. Render each character EXACTLY as specified - do not invent or modify characters.`;
+        }
     }
+
+    // Add layout constraints
+    constraintsList += `\n* **Layout:** Text should not cover the character's face. Balance text and character proportions.`;
+
+    // Build Style line with optional enhancements
+    let fullStylePrompt = stylePrompt;
+
+    // Add vector art for chibi styles if checked
+    const chibiStyles = ['cute_chibi', 'anime_chibi'];
+    if (chibiStyles.includes(styleKey) && elements.vectorArt.checked) {
+        fullStylePrompt = `High-quality vector sticker art, ${fullStylePrompt}`;
+    }
+
+    // Add character outline if checked
+    const outlinePrompt = elements.characterOutline.checked ? ', thick white stroke around each character silhouette (NOT around sticker cells)' : '';
 
     // Generate Final Prompt
     const prompt = `${refImageInstruction}**[Role & Style]**
 Create a "Character Sheet" containing ${count} distinct sticker designs arranged in a ${layoutInfo.grid} grid.
 **Canvas:** ${layoutInfo.width}×${layoutInfo.height} px (${layoutInfo.cols} columns × ${layoutInfo.rows} rows). Each sticker cell is exactly 370×320 px. NO extra margins or padding.
-**Style:** ${stylePrompt}, clean background.
+**Style:** ${fullStylePrompt}${outlinePrompt}, clean background.
 **Character:** ${characterPrompt}.
 ${textStyleLine}
 **Use your creative imagination to vary poses, facial expressions, and small details while keeping the main elements and text exact.**
