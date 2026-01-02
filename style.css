@@ -242,6 +242,24 @@ body {
     margin-bottom: 10px;
 }
 
+/* Output Row for Quantity and Background side-by-side */
+.output-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.output-row .sub-setting {
+    flex: 1;
+    margin-bottom: 0;
+    gap: 8px;
+}
+
+.output-row .sub-setting label {
+    min-width: auto;
+    white-space: nowrap;
+}
+
 .sub-setting:last-child {
     margin-bottom: 0;
 }

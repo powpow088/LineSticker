@@ -101,6 +101,41 @@
                     </div>
                 </section>
 
+                <!-- Output Settings -->
+                <section class="setting-group">
+                    <h3 class="setting-title">
+                        <span class="icon">🖼️</span> 輸出設定
+                    </h3>
+                    <div class="output-row">
+                        <div class="sub-setting">
+                            <label>數量</label>
+                            <select id="outputCount" class="select-input select-small">
+                                <option value="1">1 張</option>
+                                <option value="4">4 張</option>
+                                <option value="6">6 張</option>
+                                <option value="8">8 張</option>
+                                <option value="9" selected>9 張</option>
+                                <option value="12">12 張</option>
+                                <option value="16">16 張</option>
+                                <option value="20">20 張</option>
+                                <option value="24">24 張</option>
+                            </select>
+                        </div>
+                        <div class="sub-setting">
+                            <label>背景</label>
+                            <select id="bgColor" class="select-input select-small">
+                                <option value="green" selected>綠幕</option>
+                                <option value="white">純白</option>
+                                <option value="custom">自訂</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="customBgColor" class="sub-setting hidden">
+                        <label>顏色</label>
+                        <input type="color" id="bgColorPicker" value="#FFFFFF" class="color-picker">
+                    </div>
+                </section>
+
                 <!-- Sticker Items -->
                 <section class="setting-group sticker-items-group">
                     <h3 class="setting-title">
@@ -109,39 +144,6 @@
                     </h3>
                     <div id="stickerItems" class="sticker-items">
                         <!-- Populated by JS -->
-                    </div>
-                </section>
-
-                <!-- Output Settings -->
-                <section class="setting-group">
-                    <h3 class="setting-title">
-                        <span class="icon">🖼️</span> 輸出設定
-                    </h3>
-                    <div class="sub-setting">
-                        <label>數量</label>
-                        <select id="outputCount" class="select-input select-small">
-                            <option value="1">1 張</option>
-                            <option value="4">4 張</option>
-                            <option value="6">6 張</option>
-                            <option value="8">8 張</option>
-                            <option value="9" selected>9 張</option>
-                            <option value="12">12 張</option>
-                            <option value="16">16 張</option>
-                            <option value="20">20 張</option>
-                            <option value="24">24 張</option>
-                        </select>
-                    </div>
-                    <div class="sub-setting">
-                        <label>背景</label>
-                        <select id="bgColor" class="select-input select-small">
-                            <option value="green" selected>🟢 綠幕（方便去背）</option>
-                            <option value="white">純白 #FFFFFF</option>
-                            <option value="custom">自訂顏色</option>
-                        </select>
-                    </div>
-                    <div id="customBgColor" class="sub-setting hidden">
-                        <label>顏色</label>
-                        <input type="color" id="bgColorPicker" value="#FFFFFF" class="color-picker">
                     </div>
                 </section>
             </aside>
