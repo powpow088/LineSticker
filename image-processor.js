@@ -100,11 +100,10 @@ function bindEvents() {
     elements.gridRows.addEventListener('change', updateGridSettings);
 
     // Position Controls
-    elements.moveLeft.addEventListener('click', () => moveGrid(-10, 0));
-    elements.moveRight.addEventListener('click', () => moveGrid(10, 0));
-    elements.moveUp.addEventListener('click', () => moveGrid(0, -10));
-    elements.moveDown.addEventListener('click', () => moveGrid(0, 10));
-    elements.moveDown.addEventListener('click', () => moveGrid(0, 10));
+    elements.moveLeft.addEventListener('click', () => moveGrid(-2, 0));
+    elements.moveRight.addEventListener('click', () => moveGrid(2, 0));
+    elements.moveUp.addEventListener('click', () => moveGrid(0, -2));
+    elements.moveDown.addEventListener('click', () => moveGrid(0, 2));
     elements.undoBtn.addEventListener('click', undoLastAction); // Undo
 
     // Toolbar
