@@ -328,6 +328,16 @@
     pointer-events: none;
 }
 
+.grid-border-draggable {
+    pointer-events: auto;
+    cursor: move;
+}
+
+.grid-border-draggable:hover {
+    border-color: rgba(0, 120, 255, 0.9);
+    border-width: 4px;
+}
+
 .grid-cell-number {
     position: absolute;
     background: rgba(255, 0, 0, 0.85);

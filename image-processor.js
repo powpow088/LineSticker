@@ -411,13 +411,14 @@ function drawGridOverlay() {
     const offsetXPercent = (offsetX / imgWidth) * 100;
     const offsetYPercent = (offsetY / imgHeight) * 100;
 
-    // Draw outer border
+    // Draw outer border (draggable)
     const border = document.createElement('div');
-    border.className = 'grid-border';
+    border.className = 'grid-border grid-border-draggable';
     border.style.left = offsetXPercent + '%';
     border.style.top = offsetYPercent + '%';
     border.style.width = '100%';
     border.style.height = '100%';
+    border.dataset.lineType = 'border';
     overlay.appendChild(border);
 
     // Draw vertical lines (with individual offsets)
@@ -537,15 +538,21 @@ function calculateCellSize(row, col, imgWidth, imgHeight) {
 
 function handleLineMouseDown(e) {
     const line = e.target.closest('.grid-line-draggable');
-    if (!line) return;
+    const border = e.target.closest('.grid-border-draggable');
+
+    if (!line && !border) return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    const lineType = line.dataset.lineType;
-    const lineIndex = parseInt(line.dataset.lineIndex);
+    if (border) {
+        selectedLine = { type: 'border', index: 0 };
+    } else {
+        const lineType = line.dataset.lineType;
+        const lineIndex = parseInt(line.dataset.lineIndex);
+        selectedLine = { type: lineType, index: lineIndex };
+    }
 
-    selectedLine = { type: lineType, index: lineIndex };
     isLineDragging = true;
     lineDragStart = { x: e.clientX, y: e.clientY };
 
@@ -566,9 +573,13 @@ function handleLineMouseMove(e) {
     const scaleX = (canvas.width / scale) / canvasRect.width;
     const scaleY = (canvas.height / scale) / canvasRect.height;
 
-    if (selectedLine.type === 'v') {
+    if (selectedLine.type === 'border') {
+        // Move entire grid (offsetX, offsetY)
+        offsetX += dx * scaleX;
+        offsetY += dy * scaleY;
+    } else if (selectedLine.type === 'v') {
         lineOffsets.v[selectedLine.index] = (lineOffsets.v[selectedLine.index] || 0) + dx * scaleX;
-    } else {
+    } else if (selectedLine.type === 'h') {
         lineOffsets.h[selectedLine.index] = (lineOffsets.h[selectedLine.index] || 0) + dy * scaleY;
     }
 
