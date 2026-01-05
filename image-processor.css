@@ -265,102 +265,183 @@
     pointer-events: none;
 }
 
+/* Grid Lines - Base */
 .grid-line-v,
 .grid-line-h {
     position: absolute;
-    background: rgba(255, 0, 0, 0.7);
+    background: transparent;
+    /* Transparent hit area */
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Visual Line using ::after */
+.grid-line-v::after,
+.grid-line-h::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 0, 0, 0.8);
+    transition: all 0.15s;
 }
 
 .grid-line-v {
-    width: 2px;
+    width: 8px;
+    /* Hit area width */
     height: 100%;
     top: 0;
+    margin-left: -4px;
+    /* Center the hit area */
+}
+
+.grid-line-v::after {
+    width: 1px;
+    /* Visual line width */
+    height: 100%;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
 }
 
 .grid-line-h {
-    height: 2px;
+    height: 8px;
+    /* Hit area height */
     width: 100%;
     left: 0;
+    margin-top: -4px;
+    /* Center the hit area */
 }
 
-/* Draggable grid lines */
+.grid-line-h::after {
+    height: 1px;
+    /* Visual line height */
+    width: 100%;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+/* Draggable Grid Lines */
 .grid-line-draggable {
     pointer-events: auto;
-    transition: background 0.15s, transform 0.15s;
+    cursor: grab;
 }
 
 .grid-line-v.grid-line-draggable {
     cursor: col-resize;
-    width: 6px;
-    margin-left: -2px;
 }
 
 .grid-line-h.grid-line-draggable {
     cursor: row-resize;
-    height: 6px;
-    margin-top: -2px;
 }
 
-.grid-line-draggable:hover {
-    background: rgba(0, 120, 255, 0.9);
-    z-index: 10;
+/* Hover/active states */
+.grid-line-draggable:hover::after {
+    background: rgba(0, 120, 255, 1);
+    box-shadow: 0 0 3px rgba(0, 120, 255, 0.5);
 }
 
-.grid-line-selected {
+.grid-line-v.grid-line-draggable:hover::after {
+    width: 3px;
+}
+
+.grid-line-h.grid-line-draggable:hover::after {
+    height: 3px;
+}
+
+/* Selected State */
+.grid-line-selected::after {
     background: rgba(0, 180, 255, 1) !important;
-    z-index: 11;
+    width: 3px !important;
+    height: 3px !important;
+    /* Will be constrained by parent direction */
 }
 
-.grid-line-v.grid-line-selected {
-    width: 4px;
-    margin-left: -1px;
+.grid-line-v.grid-line-selected::after {
+    height: 100% !important;
 }
 
-.grid-line-h.grid-line-selected {
-    height: 4px;
-    margin-top: -1px;
+.grid-line-h.grid-line-selected::after {
+    width: 100% !important;
 }
 
+
+/* Outer Border Container (for overall move) */
 .grid-border {
     position: absolute;
-    border: 3px solid rgba(255, 0, 0, 0.9);
+    border: none;
+    /* Removed default border */
     box-sizing: border-box;
     pointer-events: none;
 }
 
-/* Border edge lines (draggable) */
+/* Border Edge Lines (Draggable) */
 .grid-border-edge {
     position: absolute;
-    background: rgba(255, 0, 0, 0.9);
+    background: transparent;
+    /* Hit area */
     pointer-events: auto;
     z-index: 5;
 }
 
+/* Border Edge Visuals */
+.grid-border-edge::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 0, 0, 0.9);
+    transition: all 0.15s;
+}
+
+/* Horizontal Edges (Top/Bottom) */
 .grid-border-edge-h {
-    height: 4px;
-    margin-top: -2px;
+    height: 10px;
+    /* Hit area */
+    width: 100%;
+    margin-top: -5px;
     cursor: row-resize;
+    left: 0;
+    /* Add left: 0 to unsure alignment */
 }
 
+.grid-border-edge-h::after {
+    height: 2px;
+    /* Visual width */
+    width: 100%;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+/* Vertical Edges (Left/Right) */
 .grid-border-edge-v {
-    width: 4px;
-    margin-left: -2px;
+    width: 10px;
+    /* Hit area */
+    height: 100%;
+    margin-left: -5px;
     cursor: col-resize;
+    top: 0;
+    /* Add top: 0 to ensure alignment */
 }
 
-.grid-border-edge:hover {
+.grid-border-edge-v::after {
+    width: 2px;
+    /* Visual width */
+    height: 100%;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+}
+
+/* Border Hover States */
+.grid-border-edge:hover::after {
     background: rgba(0, 120, 255, 0.95);
-    z-index: 15;
 }
 
-.grid-border-edge-h:hover {
-    height: 6px;
-    margin-top: -3px;
+.grid-border-edge-h:hover::after {
+    height: 4px;
 }
 
-.grid-border-edge-v:hover {
-    width: 6px;
-    margin-left: -3px;
+.grid-border-edge-v:hover::after {
+    width: 4px;
 }
 
 .grid-cell-number {
