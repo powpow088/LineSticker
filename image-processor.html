@@ -68,7 +68,6 @@
                             <option value="5">5 列</option>
                             <option value="6">6 列</option>
                         </select>
-                        <span class="grid-total" id="gridTotal">= 9 張貼圖</span>
                     </div>
 
                 </div>
@@ -97,13 +96,15 @@
                     <button id="moveRight" class="btn btn-icon-only">→</button>
                     <button id="moveUp" class="btn btn-icon-only">↑</button>
                     <button id="moveDown" class="btn btn-icon-only">↓</button>
-                    <!-- Legacy Mode Toggle -->
-                    <label style="margin: 0 8px; display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" id="legacyModeToggle" style="margin-right: 4px;"> 經典綠幕
-                    </label>
-
                     <!-- Undo Button -->
                     <button id="undoBtn" class="btn btn-icon-only" title="復原 (Undo)">↶</button>
+                </div>
+
+                <!-- Legacy Mode & Preview -->
+                <div class="setting-row">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="legacyModeToggle" style="margin-right: 4px;"> 經典綠幕
+                    </label>
                     <button id="previewDebackBtn" class="btn btn-secondary" title="預覽去背效果">
                         <span class="btn-icon">👁️</span> 試看去背
                     </button>

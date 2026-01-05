@@ -41,7 +41,6 @@ const elements = {
     // Grid Settings
     gridCols: document.getElementById('gridCols'),
     gridRows: document.getElementById('gridRows'),
-    gridTotal: document.getElementById('gridTotal'),
     moveLeft: document.getElementById('moveLeft'),
     moveRight: document.getElementById('moveRight'),
     moveUp: document.getElementById('moveUp'),
@@ -298,33 +297,19 @@ function autoDetectGridSize() {
     gridRows = bestMatch[1];
     elements.gridCols.value = gridCols;
     elements.gridRows.value = gridRows;
-    updateGridTotal();
 }
 
 function updateGridSettings() {
     gridCols = parseInt(elements.gridCols.value);
     gridRows = parseInt(elements.gridRows.value);
-    updateGridTotal();
     drawPreview();
-}
-
-function updateGridTotal() {
-    const total = gridCols * gridRows;
-    elements.gridTotal.textContent = `= ${total} 張貼圖`;
-}
-
-function moveGrid(dx, dy) {
-    offsetX += dx;
-    updateGridTotal();
 }
 
 function moveGrid(dx, dy) {
     offsetX += dx;
     offsetY += dy;
-    // updateOffsetDisplay(); // Removed
     drawGridOverlay();
 }
-
 
 function drawPreview() {
     if (!imageElement) return;
