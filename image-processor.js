@@ -27,6 +27,12 @@ let actionHistory = []; // Stack of {type: 'seed'|'box', data: ...}
 let isLegacyMode = false;
 let isDebackPreviewMode = false; // Preview mode for background removal
 
+// Individual grid line offsets
+let lineOffsets = { h: [], v: [] }; // h[i] = Y offset for horizontal line i, v[i] = X offset for vertical line i
+let selectedLine = null; // { type: 'h'|'v', index: number }
+let isLineDragging = false;
+let lineDragStart = null;
+
 // DOM Elements
 const elements = {
     // Steps
@@ -137,6 +143,12 @@ function bindEvents() {
     elements.previewCanvas.addEventListener('mousemove', handlePreviewMouseMove);
     elements.previewCanvas.addEventListener('mouseup', handlePreviewMouseUp);
     elements.previewCanvas.addEventListener('mouseout', handlePreviewMouseUp); // Stop if leaving canvas
+
+    // Grid Line Dragging
+    elements.gridOverlay.addEventListener('mousedown', handleLineMouseDown);
+    document.addEventListener('mousemove', handleLineMouseMove);
+    document.addEventListener('mouseup', handleLineMouseUp);
+    document.addEventListener('keydown', handleLineKeyDown);
 
     // Actions
     elements.backToUpload.addEventListener('click', () => {
@@ -382,14 +394,22 @@ function drawGridOverlay() {
     const overlay = elements.gridOverlay;
     overlay.innerHTML = '';
 
+    // Initialize line offsets arrays if needed
+    while (lineOffsets.h.length < gridRows - 1) lineOffsets.h.push(0);
+    while (lineOffsets.v.length < gridCols - 1) lineOffsets.v.push(0);
+    lineOffsets.h.length = gridRows - 1;
+    lineOffsets.v.length = gridCols - 1;
+
     // Use percentage-based positioning for responsive display
     const cellWidthPercent = 100 / gridCols;
     const cellHeightPercent = 100 / gridRows;
 
     // Offset as percentage of canvas
     const canvas = elements.previewCanvas;
-    const offsetXPercent = (offsetX / (canvas.width / scale)) * 100;
-    const offsetYPercent = (offsetY / (canvas.height / scale)) * 100;
+    const imgWidth = canvas.width / scale;
+    const imgHeight = canvas.height / scale;
+    const offsetXPercent = (offsetX / imgWidth) * 100;
+    const offsetYPercent = (offsetY / imgHeight) * 100;
 
     // Draw outer border
     const border = document.createElement('div');
@@ -400,34 +420,168 @@ function drawGridOverlay() {
     border.style.height = '100%';
     overlay.appendChild(border);
 
-    // Draw vertical lines
+    // Draw vertical lines (with individual offsets)
     for (let i = 1; i < gridCols; i++) {
+        const lineOffset = lineOffsets.v[i - 1] || 0;
+        const lineOffsetPercent = (lineOffset / imgWidth) * 100;
+
         const line = document.createElement('div');
-        line.className = 'grid-line-v';
-        line.style.left = (i * cellWidthPercent + offsetXPercent) + '%';
+        line.className = 'grid-line-v grid-line-draggable';
+        line.style.left = (i * cellWidthPercent + offsetXPercent + lineOffsetPercent) + '%';
+        line.dataset.lineType = 'v';
+        line.dataset.lineIndex = i - 1;
+
+        // Highlight selected line
+        if (selectedLine && selectedLine.type === 'v' && selectedLine.index === i - 1) {
+            line.classList.add('grid-line-selected');
+        }
+
         overlay.appendChild(line);
     }
 
-    // Draw horizontal lines
+    // Draw horizontal lines (with individual offsets)
     for (let i = 1; i < gridRows; i++) {
+        const lineOffset = lineOffsets.h[i - 1] || 0;
+        const lineOffsetPercent = (lineOffset / imgHeight) * 100;
+
         const line = document.createElement('div');
-        line.className = 'grid-line-h';
-        line.style.top = (i * cellHeightPercent + offsetYPercent) + '%';
+        line.className = 'grid-line-h grid-line-draggable';
+        line.style.top = (i * cellHeightPercent + offsetYPercent + lineOffsetPercent) + '%';
+        line.dataset.lineType = 'h';
+        line.dataset.lineIndex = i - 1;
+
+        // Highlight selected line
+        if (selectedLine && selectedLine.type === 'h' && selectedLine.index === i - 1) {
+            line.classList.add('grid-line-selected');
+        }
+
         overlay.appendChild(line);
     }
 
-    // Draw cell numbers
+    // Draw cell numbers (using line positions for accurate placement)
     for (let row = 0; row < gridRows; row++) {
         for (let col = 0; col < gridCols; col++) {
             const num = row * gridCols + col + 1;
             const label = document.createElement('div');
             label.className = 'grid-cell-number';
             label.textContent = num;
-            label.style.left = (col * cellWidthPercent + offsetXPercent + 1) + '%';
-            label.style.top = (row * cellHeightPercent + offsetYPercent + 1) + '%';
+
+            // Calculate left position based on previous vertical line
+            let leftPercent = col * cellWidthPercent + offsetXPercent;
+            if (col > 0) {
+                const prevLineOffset = lineOffsets.v[col - 1] || 0;
+                leftPercent += (prevLineOffset / imgWidth) * 100;
+            }
+
+            // Calculate top position based on previous horizontal line
+            let topPercent = row * cellHeightPercent + offsetYPercent;
+            if (row > 0) {
+                const prevLineOffset = lineOffsets.h[row - 1] || 0;
+                topPercent += (prevLineOffset / imgHeight) * 100;
+            }
+
+            label.style.left = (leftPercent + 0.5) + '%';
+            label.style.top = (topPercent + 0.5) + '%';
             overlay.appendChild(label);
         }
     }
+}
+
+// =========================================
+// Grid Line Dragging Handlers
+// =========================================
+
+function handleLineMouseDown(e) {
+    const line = e.target.closest('.grid-line-draggable');
+    if (!line) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const lineType = line.dataset.lineType;
+    const lineIndex = parseInt(line.dataset.lineIndex);
+
+    selectedLine = { type: lineType, index: lineIndex };
+    isLineDragging = true;
+    lineDragStart = { x: e.clientX, y: e.clientY };
+
+    drawGridOverlay();
+}
+
+function handleLineMouseMove(e) {
+    if (!isLineDragging || !selectedLine) return;
+
+    const canvas = elements.previewCanvas;
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Calculate movement in image pixels
+    const dx = e.clientX - lineDragStart.x;
+    const dy = e.clientY - lineDragStart.y;
+
+    // Convert screen pixels to image pixels
+    const scaleX = (canvas.width / scale) / canvasRect.width;
+    const scaleY = (canvas.height / scale) / canvasRect.height;
+
+    if (selectedLine.type === 'v') {
+        lineOffsets.v[selectedLine.index] = (lineOffsets.v[selectedLine.index] || 0) + dx * scaleX;
+    } else {
+        lineOffsets.h[selectedLine.index] = (lineOffsets.h[selectedLine.index] || 0) + dy * scaleY;
+    }
+
+    lineDragStart = { x: e.clientX, y: e.clientY };
+    drawGridOverlay();
+}
+
+function handleLineMouseUp() {
+    if (isLineDragging) {
+        isLineDragging = false;
+        lineDragStart = null;
+        // Keep selectedLine for keyboard adjustment
+    }
+}
+
+function handleLineKeyDown(e) {
+    if (!selectedLine) return;
+
+    const step = 2; // pixels per key press
+    let handled = false;
+
+    if (selectedLine.type === 'h') {
+        // Horizontal line: up/down
+        if (e.key === 'ArrowUp') {
+            lineOffsets.h[selectedLine.index] = (lineOffsets.h[selectedLine.index] || 0) - step;
+            handled = true;
+        } else if (e.key === 'ArrowDown') {
+            lineOffsets.h[selectedLine.index] = (lineOffsets.h[selectedLine.index] || 0) + step;
+            handled = true;
+        }
+    } else if (selectedLine.type === 'v') {
+        // Vertical line: left/right
+        if (e.key === 'ArrowLeft') {
+            lineOffsets.v[selectedLine.index] = (lineOffsets.v[selectedLine.index] || 0) - step;
+            handled = true;
+        } else if (e.key === 'ArrowRight') {
+            lineOffsets.v[selectedLine.index] = (lineOffsets.v[selectedLine.index] || 0) + step;
+            handled = true;
+        }
+    }
+
+    // Escape to deselect
+    if (e.key === 'Escape') {
+        selectedLine = null;
+        handled = true;
+    }
+
+    if (handled) {
+        e.preventDefault();
+        drawGridOverlay();
+    }
+}
+
+function resetLineOffsets() {
+    lineOffsets = { h: [], v: [] };
+    selectedLine = null;
+    drawGridOverlay();
 }
 
 // =========================================
@@ -456,9 +610,9 @@ async function cutAndDownload() {
     // Apply Smart Eraser Boxes
     applyEraserBoxes(fullProcessCanvas, 1);
 
-    // 2. Cut from the PROCESSED canvas
-    const cellWidth = imageElement.width / gridCols;
-    const cellHeight = imageElement.height / gridRows;
+    // 2. Cut from the PROCESSED canvas using individual line offsets
+    const baseCellWidth = imageElement.width / gridCols;
+    const baseCellHeight = imageElement.height / gridRows;
 
     const zip = new JSZip();
     const folder = zip.folder('LINE_Stickers');
@@ -468,9 +622,35 @@ async function cutAndDownload() {
             const num = row * gridCols + col + 1;
             showToast(`裁切中... (${num}/${totalStickers})`, 'success');
 
-            // Source position (with offset)
-            const srcX = col * cellWidth + offsetX / scale;
-            const srcY = row * cellHeight + offsetY / scale;
+            // Calculate srcX: left edge of this cell
+            let srcX = col * baseCellWidth + offsetX / scale;
+            if (col > 0 && lineOffsets.v[col - 1]) {
+                srcX += lineOffsets.v[col - 1];
+            }
+
+            // Calculate srcY: top edge of this cell
+            let srcY = row * baseCellHeight + offsetY / scale;
+            if (row > 0 && lineOffsets.h[row - 1]) {
+                srcY += lineOffsets.h[row - 1];
+            }
+
+            // Calculate cell width: from left edge to right edge
+            let cellWidth = baseCellWidth;
+            if (col > 0 && lineOffsets.v[col - 1]) {
+                cellWidth -= lineOffsets.v[col - 1];
+            }
+            if (col < gridCols - 1 && lineOffsets.v[col]) {
+                cellWidth += lineOffsets.v[col];
+            }
+
+            // Calculate cell height: from top edge to bottom edge
+            let cellHeight = baseCellHeight;
+            if (row > 0 && lineOffsets.h[row - 1]) {
+                cellHeight -= lineOffsets.h[row - 1];
+            }
+            if (row < gridRows - 1 && lineOffsets.h[row]) {
+                cellHeight += lineOffsets.h[row];
+            }
 
             // Create sticker canvas (370x320)
             const stickerCanvas = document.createElement('canvas');

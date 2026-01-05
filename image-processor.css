@@ -283,6 +283,44 @@
     left: 0;
 }
 
+/* Draggable grid lines */
+.grid-line-draggable {
+    pointer-events: auto;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.grid-line-v.grid-line-draggable {
+    cursor: col-resize;
+    width: 6px;
+    margin-left: -2px;
+}
+
+.grid-line-h.grid-line-draggable {
+    cursor: row-resize;
+    height: 6px;
+    margin-top: -2px;
+}
+
+.grid-line-draggable:hover {
+    background: rgba(0, 120, 255, 0.9);
+    z-index: 10;
+}
+
+.grid-line-selected {
+    background: rgba(0, 180, 255, 1) !important;
+    z-index: 11;
+}
+
+.grid-line-v.grid-line-selected {
+    width: 4px;
+    margin-left: -1px;
+}
+
+.grid-line-h.grid-line-selected {
+    height: 4px;
+    margin-top: -1px;
+}
+
 .grid-border {
     position: absolute;
     border: 3px solid rgba(255, 0, 0, 0.9);
