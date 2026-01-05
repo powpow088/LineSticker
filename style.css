@@ -116,7 +116,7 @@ body {
 /* Main Content Layout */
 .main-content {
     display: grid;
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: 480px 1fr;
     gap: var(--gap);
     flex: 1;
 }

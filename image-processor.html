@@ -70,16 +70,47 @@
                         </select>
                         <span class="grid-total" id="gridTotal">= 9 張貼圖</span>
                     </div>
-                    <div class="setting-row">
-                        <label>微調位置：</label>
-                        <button id="moveLeft" class="btn btn-icon-only">←</button>
-                        <button id="moveRight" class="btn btn-icon-only">→</button>
-                        <button id="moveUp" class="btn btn-icon-only">↑</button>
-                        <button id="moveDown" class="btn btn-icon-only">↓</button>
-                        <span class="offset-display" id="offsetDisplay">偏移: (0, 0)</span>
-                        <button id="resetOffset" class="btn btn-ghost btn-sm">重設</button>
-                    </div>
+
                 </div>
+
+                <!-- Tool Mode -->
+                <div class="setting-row" id="toolModeSetting">
+                    <label>工具：</label>
+                    <label style="margin-right: 10px;">
+                        <input type="radio" name="toolMode" value="wand" checked> 🪄 魔法棒
+                    </label>
+                    <label>
+                        <input type="radio" name="toolMode" value="eraser"> ⬜ 框選清除
+                    </label>
+                </div>
+
+                <!-- De-back Tolerance -->
+                <div class="setting-row" id="toleranceSetting">
+                    <label>去背容許度: <span id="toleranceValue">60</span></label>
+                    <input type="range" id="toleranceRange" min="10" max="150" value="60"
+                        style="width: 120px; vertical-align: middle;">
+                </div>
+
+                <div class="setting-row">
+                    <label>微調位置：</label>
+                    <button id="moveLeft" class="btn btn-icon-only">←</button>
+                    <button id="moveRight" class="btn btn-icon-only">→</button>
+                    <button id="moveUp" class="btn btn-icon-only">↑</button>
+                    <button id="moveDown" class="btn btn-icon-only">↓</button>
+                    <!-- Legacy Mode Toggle -->
+                    <label style="margin: 0 8px; display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="legacyModeToggle" style="margin-right: 4px;"> 經典綠幕
+                    </label>
+
+                    <!-- Undo Button -->
+                    <button id="undoBtn" class="btn btn-icon-only" title="復原 (Undo)">↶</button>
+                    <button id="previewDebackBtn" class="btn btn-secondary" title="預覽去背效果">
+                        <span class="btn-icon">👁️</span> 試看去背
+                    </button>
+                </div>
+
+
+
 
                 <!-- Canvas with Grid Overlay -->
                 <div class="grid-preview-container">

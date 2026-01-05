@@ -117,7 +117,12 @@ const THEMES = {
             { action: "Opening arms for hug", text: "抱抱" },
             { action: "Cheering with sparkles", text: "你最棒" },
             { action: "Looking at distance", text: "想見你" },
-            { action: "Happy couple pose", text: "在一起好幸福" }
+            { action: "Happy couple pose", text: "在一起好幸福" },
+            { action: "Holding a glowing heart, blushing", text: "純純的愛" },
+            { action: "Standing in front of a dreamy castle", text: "純愛城堡" },
+            { action: "Wearing headband determined", text: "純愛戰士" },
+            { action: "Leaning on shoulder happy", text: "有你真好" },
+            { action: "Hugging a huge heart tightly", text: "最愛你了" }
         ]
     },
     daily: {
