@@ -145,11 +145,16 @@ function bindEvents() {
     elements.previewCanvas.addEventListener('mouseup', handlePreviewMouseUp);
     elements.previewCanvas.addEventListener('mouseout', handlePreviewMouseUp); // Stop if leaving canvas
 
-    // Grid Line Dragging
+    // Grid Line Dragging (Mouse)
     elements.gridOverlay.addEventListener('mousedown', handleLineMouseDown);
     document.addEventListener('mousemove', handleLineMouseMove);
     document.addEventListener('mouseup', handleLineMouseUp);
     document.addEventListener('keydown', handleLineKeyDown);
+
+    // Grid Line Dragging (Touch - for mobile)
+    elements.gridOverlay.addEventListener('touchstart', handleLineTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleLineTouchMove, { passive: false });
+    document.addEventListener('touchend', handleLineTouchEnd);
 
     // Actions
     elements.backToUpload.addEventListener('click', () => {
@@ -504,14 +509,19 @@ function drawGridOverlay() {
 
             // Calculate actual cell dimensions in original image pixels
             const cellSize = calculateCellSize(row, col, imgWidth, imgHeight);
-            const isOversized = cellSize.width > STICKER_WIDTH || cellSize.height > STICKER_HEIGHT;
+
+            // Check aspect ratio difference (warn if > 20% different from 370:320 = 1.15625)
+            const targetRatio = STICKER_WIDTH / STICKER_HEIGHT; // 1.15625
+            const cellRatio = cellSize.width / cellSize.height;
+            const ratioDiff = Math.abs(cellRatio - targetRatio) / targetRatio;
+            const hasRatioWarning = ratioDiff > 0.2; // More than 20% different
 
             const label = document.createElement('div');
-            label.className = 'grid-cell-number' + (isOversized ? ' grid-cell-oversized' : '');
+            label.className = 'grid-cell-number' + (hasRatioWarning ? ' grid-cell-oversized' : '');
 
-            // Show number + size warning if oversized
-            if (isOversized) {
-                label.innerHTML = `${num}<span class="cell-size-warning">${Math.round(cellSize.width)}×${Math.round(cellSize.height)}</span>`;
+            // Show number + warning if aspect ratio is very different
+            if (hasRatioWarning) {
+                label.innerHTML = `${num}<span class="cell-size-warning">比例差異</span>`;
             } else {
                 label.textContent = num;
             }
@@ -649,6 +659,45 @@ function handleLineMouseUp() {
     }
 }
 
+// =========================================
+// Touch Handlers (Mobile)
+// =========================================
+
+function handleLineTouchStart(e) {
+    if (e.touches.length !== 1) return;
+
+    const touch = e.touches[0];
+
+    // Simulate mouse event structure for reuse
+    const mockEvent = {
+        target: touch.target,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        preventDefault: () => e.preventDefault(),
+        stopPropagation: () => e.stopPropagation()
+    };
+
+    handleLineMouseDown(mockEvent);
+}
+
+function handleLineTouchMove(e) {
+    if (!isLineDragging || e.touches.length !== 1) return;
+
+    const touch = e.touches[0];
+    e.preventDefault(); // Prevent scrolling while dragging
+
+    const mockEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    };
+
+    handleLineMouseMove(mockEvent);
+}
+
+function handleLineTouchEnd(e) {
+    handleLineMouseUp();
+}
+
 function handleLineKeyDown(e) {
     if (!selectedLine) return;
 
@@ -770,11 +819,21 @@ async function cutAndDownload() {
             stickerCanvas.height = STICKER_HEIGHT;
             const stickerCtx = stickerCanvas.getContext('2d');
 
-            // Draw cropped portion from the ALREADY PROCESSED full canvas
+            // Proportional scaling with transparent padding (no distortion)
+            // Calculate scale to fit within 370x320 while maintaining aspect ratio
+            const scaleToFit = Math.min(STICKER_WIDTH / cellWidth, STICKER_HEIGHT / cellHeight);
+            const scaledW = cellWidth * scaleToFit;
+            const scaledH = cellHeight * scaleToFit;
+
+            // Center the scaled image
+            const destX = (STICKER_WIDTH - scaledW) / 2;
+            const destY = (STICKER_HEIGHT - scaledH) / 2;
+
+            // Draw with proportional scaling (transparent background by default)
             stickerCtx.drawImage(
                 fullProcessCanvas,
                 srcX, srcY, cellWidth, cellHeight,
-                0, 0, STICKER_WIDTH, STICKER_HEIGHT
+                destX, destY, scaledW, scaledH
             );
 
             // Convert to blob and add to ZIP
