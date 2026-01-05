@@ -29,7 +29,8 @@ let isDebackPreviewMode = false; // Preview mode for background removal
 
 // Individual grid line offsets
 let lineOffsets = { h: [], v: [] }; // h[i] = Y offset for horizontal line i, v[i] = X offset for vertical line i
-let selectedLine = null; // { type: 'h'|'v', index: number }
+let borderOffsets = { top: 0, right: 0, bottom: 0, left: 0 }; // Outer border edge offsets for cropping
+let selectedLine = null; // { type: 'h'|'v'|'border-top'|'border-right'|'border-bottom'|'border-left', index: number }
 let isLineDragging = false;
 let lineDragStart = null;
 
@@ -411,15 +412,52 @@ function drawGridOverlay() {
     const offsetXPercent = (offsetX / imgWidth) * 100;
     const offsetYPercent = (offsetY / imgHeight) * 100;
 
-    // Draw outer border (draggable)
-    const border = document.createElement('div');
-    border.className = 'grid-border grid-border-draggable';
-    border.style.left = offsetXPercent + '%';
-    border.style.top = offsetYPercent + '%';
-    border.style.width = '100%';
-    border.style.height = '100%';
-    border.dataset.lineType = 'border';
-    overlay.appendChild(border);
+    // Border edge offsets as percentages
+    const borderTopPercent = (borderOffsets.top / imgHeight) * 100;
+    const borderRightPercent = (borderOffsets.right / imgWidth) * 100;
+    const borderBottomPercent = (borderOffsets.bottom / imgHeight) * 100;
+    const borderLeftPercent = (borderOffsets.left / imgWidth) * 100;
+
+    // Draw four border edges as separate draggable elements
+    // Top edge
+    const topEdge = document.createElement('div');
+    topEdge.className = 'grid-border-edge grid-border-edge-h';
+    topEdge.style.top = (offsetYPercent + borderTopPercent) + '%';
+    topEdge.style.left = (offsetXPercent + borderLeftPercent) + '%';
+    topEdge.style.width = (100 - borderLeftPercent - borderRightPercent) + '%';
+    topEdge.dataset.lineType = 'border-top';
+    if (selectedLine && selectedLine.type === 'border-top') topEdge.classList.add('grid-line-selected');
+    overlay.appendChild(topEdge);
+
+    // Bottom edge
+    const bottomEdge = document.createElement('div');
+    bottomEdge.className = 'grid-border-edge grid-border-edge-h';
+    bottomEdge.style.top = (100 + offsetYPercent - borderBottomPercent) + '%';
+    bottomEdge.style.left = (offsetXPercent + borderLeftPercent) + '%';
+    bottomEdge.style.width = (100 - borderLeftPercent - borderRightPercent) + '%';
+    bottomEdge.dataset.lineType = 'border-bottom';
+    if (selectedLine && selectedLine.type === 'border-bottom') bottomEdge.classList.add('grid-line-selected');
+    overlay.appendChild(bottomEdge);
+
+    // Left edge
+    const leftEdge = document.createElement('div');
+    leftEdge.className = 'grid-border-edge grid-border-edge-v';
+    leftEdge.style.left = (offsetXPercent + borderLeftPercent) + '%';
+    leftEdge.style.top = (offsetYPercent + borderTopPercent) + '%';
+    leftEdge.style.height = (100 - borderTopPercent - borderBottomPercent) + '%';
+    leftEdge.dataset.lineType = 'border-left';
+    if (selectedLine && selectedLine.type === 'border-left') leftEdge.classList.add('grid-line-selected');
+    overlay.appendChild(leftEdge);
+
+    // Right edge
+    const rightEdge = document.createElement('div');
+    rightEdge.className = 'grid-border-edge grid-border-edge-v';
+    rightEdge.style.left = (100 + offsetXPercent - borderRightPercent) + '%';
+    rightEdge.style.top = (offsetYPercent + borderTopPercent) + '%';
+    rightEdge.style.height = (100 - borderTopPercent - borderBottomPercent) + '%';
+    rightEdge.dataset.lineType = 'border-right';
+    if (selectedLine && selectedLine.type === 'border-right') rightEdge.classList.add('grid-line-selected');
+    overlay.appendChild(rightEdge);
 
     // Draw vertical lines (with individual offsets)
     for (let i = 1; i < gridCols; i++) {
@@ -504,8 +542,12 @@ function drawGridOverlay() {
 
 // Calculate the actual size of a cell at (row, col)
 function calculateCellSize(row, col, imgWidth, imgHeight) {
-    const baseCellWidth = imgWidth / gridCols;
-    const baseCellHeight = imgHeight / gridRows;
+    // Total available area after border offsets
+    const usableWidth = imgWidth - borderOffsets.left - borderOffsets.right;
+    const usableHeight = imgHeight - borderOffsets.top - borderOffsets.bottom;
+
+    const baseCellWidth = usableWidth / gridCols;
+    const baseCellHeight = usableHeight / gridRows;
 
     // Calculate width
     let width = baseCellWidth;
@@ -538,15 +580,15 @@ function calculateCellSize(row, col, imgWidth, imgHeight) {
 
 function handleLineMouseDown(e) {
     const line = e.target.closest('.grid-line-draggable');
-    const border = e.target.closest('.grid-border-draggable');
+    const borderEdge = e.target.closest('.grid-border-edge');
 
-    if (!line && !border) return;
+    if (!line && !borderEdge) return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    if (border) {
-        selectedLine = { type: 'border', index: 0 };
+    if (borderEdge) {
+        selectedLine = { type: borderEdge.dataset.lineType, index: 0 };
     } else {
         const lineType = line.dataset.lineType;
         const lineIndex = parseInt(line.dataset.lineIndex);
@@ -573,14 +615,26 @@ function handleLineMouseMove(e) {
     const scaleX = (canvas.width / scale) / canvasRect.width;
     const scaleY = (canvas.height / scale) / canvasRect.height;
 
-    if (selectedLine.type === 'border') {
-        // Move entire grid (offsetX, offsetY)
-        offsetX += dx * scaleX;
-        offsetY += dy * scaleY;
-    } else if (selectedLine.type === 'v') {
-        lineOffsets.v[selectedLine.index] = (lineOffsets.v[selectedLine.index] || 0) + dx * scaleX;
-    } else if (selectedLine.type === 'h') {
-        lineOffsets.h[selectedLine.index] = (lineOffsets.h[selectedLine.index] || 0) + dy * scaleY;
+    // Handle different line types
+    switch (selectedLine.type) {
+        case 'border-top':
+            borderOffsets.top += dy * scaleY;
+            break;
+        case 'border-bottom':
+            borderOffsets.bottom -= dy * scaleY;
+            break;
+        case 'border-left':
+            borderOffsets.left += dx * scaleX;
+            break;
+        case 'border-right':
+            borderOffsets.right -= dx * scaleX;
+            break;
+        case 'v':
+            lineOffsets.v[selectedLine.index] = (lineOffsets.v[selectedLine.index] || 0) + dx * scaleX;
+            break;
+        case 'h':
+            lineOffsets.h[selectedLine.index] = (lineOffsets.h[selectedLine.index] || 0) + dy * scaleY;
+            break;
     }
 
     lineDragStart = { x: e.clientX, y: e.clientY };
@@ -666,8 +720,11 @@ async function cutAndDownload() {
     applyEraserBoxes(fullProcessCanvas, 1);
 
     // 2. Cut from the PROCESSED canvas using individual line offsets
-    const baseCellWidth = imageElement.width / gridCols;
-    const baseCellHeight = imageElement.height / gridRows;
+    // Account for border offsets (cropping margins)
+    const usableWidth = imageElement.width - borderOffsets.left - borderOffsets.right;
+    const usableHeight = imageElement.height - borderOffsets.top - borderOffsets.bottom;
+    const baseCellWidth = usableWidth / gridCols;
+    const baseCellHeight = usableHeight / gridRows;
 
     const zip = new JSZip();
     const folder = zip.folder('LINE_Stickers');
@@ -677,14 +734,14 @@ async function cutAndDownload() {
             const num = row * gridCols + col + 1;
             showToast(`裁切中... (${num}/${totalStickers})`, 'success');
 
-            // Calculate srcX: left edge of this cell
-            let srcX = col * baseCellWidth + offsetX / scale;
+            // Calculate srcX: left edge of this cell (starting from border offset)
+            let srcX = borderOffsets.left + col * baseCellWidth + offsetX / scale;
             if (col > 0 && lineOffsets.v[col - 1]) {
                 srcX += lineOffsets.v[col - 1];
             }
 
-            // Calculate srcY: top edge of this cell
-            let srcY = row * baseCellHeight + offsetY / scale;
+            // Calculate srcY: top edge of this cell (starting from border offset)
+            let srcY = borderOffsets.top + row * baseCellHeight + offsetY / scale;
             if (row > 0 && lineOffsets.h[row - 1]) {
                 srcY += lineOffsets.h[row - 1];
             }

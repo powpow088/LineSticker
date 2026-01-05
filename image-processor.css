@@ -328,14 +328,39 @@
     pointer-events: none;
 }
 
-.grid-border-draggable {
+/* Border edge lines (draggable) */
+.grid-border-edge {
+    position: absolute;
+    background: rgba(255, 0, 0, 0.9);
     pointer-events: auto;
-    cursor: move;
+    z-index: 5;
 }
 
-.grid-border-draggable:hover {
-    border-color: rgba(0, 120, 255, 0.9);
-    border-width: 4px;
+.grid-border-edge-h {
+    height: 4px;
+    margin-top: -2px;
+    cursor: row-resize;
+}
+
+.grid-border-edge-v {
+    width: 4px;
+    margin-left: -2px;
+    cursor: col-resize;
+}
+
+.grid-border-edge:hover {
+    background: rgba(0, 120, 255, 0.95);
+    z-index: 15;
+}
+
+.grid-border-edge-h:hover {
+    height: 6px;
+    margin-top: -3px;
+}
+
+.grid-border-edge-v:hover {
+    width: 6px;
+    margin-left: -3px;
 }
 
 .grid-cell-number {
