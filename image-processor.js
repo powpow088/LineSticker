@@ -458,13 +458,27 @@ function drawGridOverlay() {
         overlay.appendChild(line);
     }
 
-    // Draw cell numbers (using line positions for accurate placement)
+    // Draw cell numbers with size warnings and hover tooltips
     for (let row = 0; row < gridRows; row++) {
         for (let col = 0; col < gridCols; col++) {
             const num = row * gridCols + col + 1;
+
+            // Calculate actual cell dimensions in original image pixels
+            const cellSize = calculateCellSize(row, col, imgWidth, imgHeight);
+            const isOversized = cellSize.width > STICKER_WIDTH || cellSize.height > STICKER_HEIGHT;
+
             const label = document.createElement('div');
-            label.className = 'grid-cell-number';
-            label.textContent = num;
+            label.className = 'grid-cell-number' + (isOversized ? ' grid-cell-oversized' : '');
+
+            // Show number + size warning if oversized
+            if (isOversized) {
+                label.innerHTML = `${num}<span class="cell-size-warning">${Math.round(cellSize.width)}×${Math.round(cellSize.height)}</span>`;
+            } else {
+                label.textContent = num;
+            }
+
+            // Tooltip for hover (always show size on hover)
+            label.title = `${Math.round(cellSize.width)} × ${Math.round(cellSize.height)} px`;
 
             // Calculate left position based on previous vertical line
             let leftPercent = col * cellWidthPercent + offsetXPercent;
@@ -485,6 +499,36 @@ function drawGridOverlay() {
             overlay.appendChild(label);
         }
     }
+}
+
+// Calculate the actual size of a cell at (row, col)
+function calculateCellSize(row, col, imgWidth, imgHeight) {
+    const baseCellWidth = imgWidth / gridCols;
+    const baseCellHeight = imgHeight / gridRows;
+
+    // Calculate width
+    let width = baseCellWidth;
+    // Left edge adjustment
+    if (col > 0 && lineOffsets.v[col - 1]) {
+        width -= lineOffsets.v[col - 1];
+    }
+    // Right edge adjustment
+    if (col < gridCols - 1 && lineOffsets.v[col]) {
+        width += lineOffsets.v[col];
+    }
+
+    // Calculate height
+    let height = baseCellHeight;
+    // Top edge adjustment
+    if (row > 0 && lineOffsets.h[row - 1]) {
+        height -= lineOffsets.h[row - 1];
+    }
+    // Bottom edge adjustment
+    if (row < gridRows - 1 && lineOffsets.h[row]) {
+        height += lineOffsets.h[row];
+    }
+
+    return { width, height };
 }
 
 // =========================================
