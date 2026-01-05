@@ -607,11 +607,11 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
     ];
 
     if (isLegacyMode) {
-        // --- Legacy Mode: Simple Global Color Key (No Flood Fill) ---
-        // Collect all target colors (Corners + User Seeds)
+        // --- Legacy Mode: Global Color Key for corners + Flood Fill for user clicks ---
+        // Step 1: Global color replacement for corner-detected background
         const targetColors = [];
 
-        // Add corners
+        // Add corners as global target colors
         corners.forEach(corner => {
             const idx = (corner.y * width + corner.x) * 4;
             targetColors.push({
@@ -622,27 +622,7 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
             });
         });
 
-        // Add User Seeds
-        if (extraSeeds && extraSeeds.length > 0) {
-            extraSeeds.forEach(seed => {
-                const tol = seed.tolerance !== undefined ? seed.tolerance : globalTolerance;
-                let r, g, b;
-                if (seed.color) {
-                    r = seed.color.r;
-                    g = seed.color.g;
-                    b = seed.color.b;
-                } else {
-                    const idx = (Math.floor(seed.y) * width + Math.floor(seed.x)) * 4;
-                    r = data[idx];
-                    g = data[idx + 1];
-                    b = data[idx + 2];
-                }
-                targetColors.push({ r, g, b, tolerance: tol });
-            });
-        }
-
-        // Scan every pixel and check against all target colors
-        // Optimization: If a pixel matches ANY target, clear it.
+        // Scan every pixel and remove if matches corner colors (global removal)
         for (let idx = 0; idx < data.length; idx += 4) {
             if (data[idx + 3] === 0) continue; // Already transparent
 
@@ -654,9 +634,31 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
                 const target = targetColors[i];
                 if (colorMatch(r, g, b, target.r, target.g, target.b, target.tolerance)) {
                     data[idx + 3] = 0;
-                    break; // Cleared, move to next pixel
+                    break;
                 }
             }
+        }
+
+        // Step 2: Use Flood Fill for user seeds (magic wand clicks) - precise area removal
+        if (extraSeeds && extraSeeds.length > 0) {
+            extraSeeds.forEach(seed => {
+                if (seed.x >= 0 && seed.x < width && seed.y >= 0 && seed.y < height) {
+                    const tol = seed.tolerance !== undefined ? seed.tolerance : globalTolerance;
+                    let r, g, b;
+                    if (seed.color) {
+                        r = seed.color.r;
+                        g = seed.color.g;
+                        b = seed.color.b;
+                    } else {
+                        const idx = (Math.floor(seed.y) * width + Math.floor(seed.x)) * 4;
+                        r = data[idx];
+                        g = data[idx + 1];
+                        b = data[idx + 2];
+                    }
+                    // Use flood fill for precise area selection
+                    floodFill(data, width, height, visited, Math.floor(seed.x), Math.floor(seed.y), r, g, b, tol);
+                }
+            });
         }
 
     } else {
