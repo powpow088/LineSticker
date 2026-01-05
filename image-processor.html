@@ -75,9 +75,16 @@
                 <!-- Tool Mode -->
                 <div class="setting-row" id="toolModeSetting">
                     <label>工具：</label>
-                    <label style="margin-right: 10px;">
+                    <label style="margin-right: 4px;">
                         <input type="radio" name="toolMode" value="wand" checked> 🪄 魔法棒
                     </label>
+                    <span class="wand-mode-group" id="wandModeGroup">(<label class="wand-mode-option" title="只對左上角背景色去背">
+                        <input type="radio" name="wandColorMode" value="background" checked> 背景色
+                    </label>
+                    <label class="wand-mode-option" title="對點擊位置的任意顏色去背">
+                        <input type="radio" name="wandColorMode" value="any"> 任意色
+                    </label>)</span>
+                    <span class="tool-divider">|</span>
                     <label>
                         <input type="radio" name="toolMode" value="eraser"> ⬜ 框選清除
                     </label>
@@ -88,6 +95,8 @@
                     <label>去背容許度: <span id="toleranceValue">60</span></label>
                     <input type="range" id="toleranceRange" min="10" max="150" value="60"
                         style="width: 120px; vertical-align: middle;">
+                    <button id="lockToleranceBtn" class="btn btn-sm" title="鎖定初始去背容許度，之後調整滑桿不影響已鎖定的四角去背">確定</button>
+                    <span id="lockedToleranceHint" class="tolerance-hint"></span>
                 </div>
 
                 <div class="setting-row">
@@ -98,6 +107,12 @@
                     <button id="moveDown" class="btn btn-icon-only">↓</button>
                     <!-- Undo Button -->
                     <button id="undoBtn" class="btn btn-icon-only" title="復原 (Undo)">↶</button>
+                    <span class="tool-divider">|</span>
+                    <label>縮放：</label>
+                    <button id="zoomOut" class="btn btn-icon-only" title="縮小">➖</button>
+                    <span id="zoomLevel">100%</span>
+                    <button id="zoomIn" class="btn btn-icon-only" title="放大">➕</button>
+                    <button id="zoomReset" class="btn btn-sm" title="重置縮放">重置</button>
                 </div>
 
                 <!-- Legacy Mode & Preview -->

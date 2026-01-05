@@ -22,10 +22,13 @@ let isDragging = false; // For Magic Wand Dragging
 let dragPath = []; // Temporary path during drag
 let eraserBoxes = []; // Array of {x, y, w, h}
 let currentTool = 'wand'; // 'wand' or 'eraser'
+let wandColorMode = 'background'; // 'background' or 'any'
 let eraserStartPoint = null; // {x, y} for box drag start
 let actionHistory = []; // Stack of {type: 'seed'|'box', data: ...}
 let isLegacyMode = false;
 let isDebackPreviewMode = false; // Preview mode for background removal
+let lockedBaseTolerance = null; // Locked tolerance for initial background removal (corners)
+let zoomLevel = 1; // User zoom level (1 = 100%)
 
 // Individual grid line offsets
 let lineOffsets = { h: [], v: [] }; // h[i] = Y offset for horizontal line i, v[i] = X offset for vertical line i
@@ -81,9 +84,18 @@ const elements = {
 
     toleranceRange: document.getElementById('toleranceRange'),
     toleranceValue: document.getElementById('toleranceValue'),
+    lockToleranceBtn: document.getElementById('lockToleranceBtn'),
+    lockedToleranceHint: document.getElementById('lockedToleranceHint'),
 
     // Preview Deback Button
-    previewDebackBtn: document.getElementById('previewDebackBtn')
+    previewDebackBtn: document.getElementById('previewDebackBtn'),
+
+    // Zoom Controls
+    zoomIn: document.getElementById('zoomIn'),
+    zoomOut: document.getElementById('zoomOut'),
+    zoomReset: document.getElementById('zoomReset'),
+    zoomLevel: document.getElementById('zoomLevel'),
+    wandModeGroup: document.getElementById('wandModeGroup')
 };
 
 // =========================================
@@ -125,6 +137,14 @@ function bindEvents() {
         radio.addEventListener('change', (e) => {
             currentTool = e.target.value;
             showToast(`已切換模式：${currentTool === 'wand' ? '魔法棒' : '框選清除'}`);
+        });
+    });
+
+    // Wand Color Mode
+    document.querySelectorAll('input[name="wandColorMode"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            wandColorMode = e.target.value;
+            showToast(`魔法棒模式：${wandColorMode === 'background' ? '背景色' : '任意色'}`);
         });
     });
 
@@ -175,11 +195,113 @@ function bindEvents() {
     if (elements.previewDebackBtn) {
         elements.previewDebackBtn.addEventListener('click', toggleDebackPreview);
     }
+
+    // Lock Tolerance Button
+    if (elements.lockToleranceBtn) {
+        elements.lockToleranceBtn.addEventListener('click', lockBaseTolerance);
+    }
+
+    // Zoom Controls
+    if (elements.zoomIn) {
+        elements.zoomIn.addEventListener('click', () => adjustZoom(0.25));
+    }
+    if (elements.zoomOut) {
+        elements.zoomOut.addEventListener('click', () => adjustZoom(-0.25));
+    }
+    if (elements.zoomReset) {
+        elements.zoomReset.addEventListener('click', resetZoom);
+    }
+
+    // Update wand mode group visibility based on tool selection
+    document.querySelectorAll('input[name="toolMode"]').forEach(radio => {
+        radio.addEventListener('change', updateWandModeVisibility);
+    });
+    updateWandModeVisibility();
 }
 
 // =========================================
 // Toggle Deback Preview Mode
 // =========================================
+
+// =========================================
+// Zoom Controls
+// =========================================
+
+function adjustZoom(delta) {
+    zoomLevel = Math.max(0.25, Math.min(4, zoomLevel + delta)); // 25% ~ 400%
+    updateZoomDisplay();
+    applyZoom();
+}
+
+function resetZoom() {
+    zoomLevel = 1;
+    updateZoomDisplay();
+    applyZoom();
+}
+
+function updateZoomDisplay() {
+    if (elements.zoomLevel) {
+        elements.zoomLevel.textContent = Math.round(zoomLevel * 100) + '%';
+    }
+}
+
+function applyZoom() {
+    if (!elements.canvasWrapper) return;
+    elements.canvasWrapper.style.transform = `scale(${zoomLevel})`;
+    elements.canvasWrapper.style.transformOrigin = 'top left';
+}
+
+// =========================================
+// Wand Mode Visibility
+// =========================================
+
+function updateWandModeVisibility() {
+    const isWandSelected = document.querySelector('input[name="toolMode"]:checked')?.value === 'wand';
+    if (elements.wandModeGroup) {
+        elements.wandModeGroup.style.opacity = isWandSelected ? '1' : '0.4';
+        elements.wandModeGroup.style.pointerEvents = isWandSelected ? 'auto' : 'none';
+    }
+}
+
+// =========================================
+// Lock Base Tolerance
+// =========================================
+
+function lockBaseTolerance() {
+    const currentTolerance = parseInt(elements.toleranceRange.value) || 60;
+    lockedBaseTolerance = currentTolerance;
+    
+    // Update UI
+    if (elements.lockedToleranceHint) {
+        elements.lockedToleranceHint.textContent = `(已鎖定: ${lockedBaseTolerance})`;
+        elements.lockedToleranceHint.classList.add('locked');
+    }
+    if (elements.lockToleranceBtn) {
+        elements.lockToleranceBtn.textContent = '✓ 已確定';
+        elements.lockToleranceBtn.classList.add('locked');
+    }
+    
+    showToast(`初始去背容許度已鎖定為 ${lockedBaseTolerance}`, 'success');
+    
+    // Refresh preview if in deback mode
+    if (isDebackPreviewMode) {
+        drawPreviewWithDeback();
+    }
+}
+
+function unlockBaseTolerance() {
+    lockedBaseTolerance = null;
+    
+    // Update UI
+    if (elements.lockedToleranceHint) {
+        elements.lockedToleranceHint.textContent = '';
+        elements.lockedToleranceHint.classList.remove('locked');
+    }
+    if (elements.lockToleranceBtn) {
+        elements.lockToleranceBtn.textContent = '確定';
+        elements.lockToleranceBtn.classList.remove('locked');
+    }
+}
 
 function toggleDebackPreview() {
     if (!imageElement) {
@@ -319,7 +441,13 @@ function autoDetectGridSize() {
 function updateGridSettings() {
     gridCols = parseInt(elements.gridCols.value);
     gridRows = parseInt(elements.gridRows.value);
-    drawPreview();
+    
+    // If in deback preview mode, redraw with deback; otherwise just redraw normal
+    if (isDebackPreviewMode) {
+        drawPreviewWithDeback();
+    } else {
+        drawPreview();
+    }
 }
 
 function moveGrid(dx, dy) {
@@ -365,8 +493,13 @@ async function drawPreviewWithDeback() {
     tempCtx.drawImage(imageElement, 0, 0, tempCanvas.width, tempCanvas.height);
 
     // Apply Flood Fill
-    // Scale user seeds to match the current canvas size
-    const scaledSeeds = userSeeds.map(s => ({ x: s.x * scale, y: s.y * scale }));
+    // Scale user seeds to match the current canvas size, preserving tolerance and color
+    const scaledSeeds = userSeeds.map(s => ({ 
+        x: s.x * scale, 
+        y: s.y * scale,
+        tolerance: s.tolerance,
+        color: s.color
+    }));
     await applySmartFloodFill(tempCanvas, scaledSeeds);
 
     // Apply Eraser Boxes
@@ -947,6 +1080,9 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
 
     // Global Tolerance (for auto-detect)
     const globalTolerance = parseInt(elements.toleranceRange.value) || 60;
+    
+    // Use locked tolerance for corners if available, otherwise use current slider value
+    const cornerTolerance = lockedBaseTolerance !== null ? lockedBaseTolerance : globalTolerance;
 
     // 1. Auto-Detect Background (Corners)
     const corners = [
@@ -961,14 +1097,14 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
         // Step 1: Global color replacement for corner-detected background
         const targetColors = [];
 
-        // Add corners as global target colors
+        // Add corners as global target colors (use locked tolerance if available)
         corners.forEach(corner => {
             const idx = (corner.y * width + corner.x) * 4;
             targetColors.push({
                 r: data[idx],
                 g: data[idx + 1],
                 b: data[idx + 2],
-                tolerance: globalTolerance
+                tolerance: cornerTolerance
             });
         });
 
@@ -1019,7 +1155,7 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
             const targetG = data[idx + 1];
             const targetB = data[idx + 2];
 
-            floodFill(data, width, height, visited, corner.x, corner.y, targetR, targetG, targetB, globalTolerance);
+            floodFill(data, width, height, visited, corner.x, corner.y, targetR, targetG, targetB, cornerTolerance);
         });
 
         // 2. Process User Seeds
@@ -1519,8 +1655,8 @@ function applyEraserBoxes(canvas, s) {
                     const g = data[idx + 1];
                     const b = data[idx + 2];
 
-                    // Use per-box tolerance, boosted by 1.5x
-                    const boxTol = (box.tolerance !== undefined ? box.tolerance : globalTolerance) * 1.5;
+                    // Use per-box tolerance (no boost - use exact value)
+                    const boxTol = box.tolerance !== undefined ? box.tolerance : globalTolerance;
 
                     if (colorMatch(r, g, b, bgR, bgG, bgB, boxTol)) {
                         data[idx + 3] = 0;
@@ -1582,13 +1718,18 @@ function addSeedFromEvent(e) {
     let color = null;
 
     if (imageElement) {
-        // We need to sample from the original image at origX, origY
-        // Create 1x1 canvas
         const tempC = document.createElement('canvas');
         tempC.width = 1;
         tempC.height = 1;
         const tempCtx = tempC.getContext('2d');
-        tempCtx.drawImage(imageElement, -1 * origX, -1 * origY); // Offset to draw pixel at 0,0
+        
+        if (wandColorMode === 'background') {
+            // 背景色模式：取樣左上角 (0,0) 的顏色
+            tempCtx.drawImage(imageElement, 0, 0);
+        } else {
+            // 任意色模式：取樣點擊位置的顏色
+            tempCtx.drawImage(imageElement, -1 * origX, -1 * origY);
+        }
         const p = tempCtx.getImageData(0, 0, 1, 1).data;
         color = { r: p[0], g: p[1], b: p[2] };
     }
@@ -1638,6 +1779,14 @@ function resetAll() {
     actionHistory = [];
     isLegacyMode = false;
     if (elements.legacyModeToggle) elements.legacyModeToggle.checked = false;
+    
+    // Reset locked tolerance
+    unlockBaseTolerance();
+
+    // Reset zoom
+    zoomLevel = 1;
+    updateZoomDisplay();
+    applyZoom();
 
     // ... other resets ...
     userSeeds = []; // Reset seeds
