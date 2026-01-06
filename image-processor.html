@@ -44,86 +44,91 @@
             <section id="step2" class="step-section">
                 <div class="step-header">
                     <span class="step-number">2</span>
-                    <h2>設定裁切網格</h2>
+                    <h2>去背裁切</h2>
+                    <button id="undoBtn" class="btn btn-sm" title="復原上一步 (Undo)">
+                        <span class="btn-icon">↶</span> 復原
+                    </button>
+                    <button id="resetDebackBtn" class="btn btn-sm" title="清除所有去背操作，重新開始">
+                        <span class="btn-icon">🔄</span> 重做
+                    </button>
                 </div>
 
                 <!-- Grid Settings -->
-                <div class="grid-settings">
-                    <div class="setting-row">
-                        <label>網格大小：</label>
-                        <select id="gridCols" class="select-input select-small">
-                            <option value="1">1 欄</option>
-                            <option value="2">2 欄</option>
-                            <option value="3" selected>3 欄</option>
-                            <option value="4">4 欄</option>
-                            <option value="5">5 欄</option>
-                            <option value="6">6 欄</option>
-                        </select>
-                        <span>×</span>
-                        <select id="gridRows" class="select-input select-small">
-                            <option value="1">1 列</option>
-                            <option value="2">2 列</option>
-                            <option value="3" selected>3 列</option>
-                            <option value="4">4 列</option>
-                            <option value="5">5 列</option>
-                            <option value="6">6 列</option>
-                        </select>
-                    </div>
+                <div class="setting-row">
+                    <label>網格大小：</label>
+                    <select id="gridCols" class="select-input select-small">
+                        <option value="1">1 欄</option>
+                        <option value="2">2 欄</option>
+                        <option value="3" selected>3 欄</option>
+                        <option value="4">4 欄</option>
+                        <option value="5">5 欄</option>
+                        <option value="6">6 欄</option>
+                    </select>
+                    <span>×</span>
+                    <select id="gridRows" class="select-input select-small">
+                        <option value="1">1 列</option>
+                        <option value="2">2 列</option>
+                        <option value="3" selected>3 列</option>
+                        <option value="4">4 列</option>
+                        <option value="5">5 列</option>
+                        <option value="6">6 列</option>
+                    </select>
+                </div>
 
+                <!-- Legacy Mode -->
+                <div class="setting-row" id="legacyModeRow">
+                    <label style="display: flex; align-items: center; cursor: pointer; min-width: unset;">
+                        <input type="checkbox" id="legacyModeToggle" style="margin-right: 4px;"> 經典綠幕
+                    </label>
                 </div>
 
                 <!-- Tool Mode -->
                 <div class="setting-row" id="toolModeSetting">
-                    <label>工具：</label>
-                    <label style="margin-right: 4px;">
-                        <input type="radio" name="toolMode" value="wand" checked> 🪄 魔法棒
-                    </label>
-                    <span class="wand-mode-group" id="wandModeGroup">(<label class="wand-mode-option" title="只對左上角背景色去背">
-                        <input type="radio" name="wandColorMode" value="background" checked> 背景色
-                    </label>
-                    <label class="wand-mode-option" title="對點擊位置的任意顏色去背">
-                        <input type="radio" name="wandColorMode" value="any"> 任意色
-                    </label>)</span>
-                    <span class="tool-divider">|</span>
-                    <label>
-                        <input type="radio" name="toolMode" value="eraser"> ⬜ 框選清除
-                    </label>
+                    <div class="btn-group" id="toolBtnGroup">
+                        <label class="btn-toggle active" title="魔法棒去背">
+                            <input type="radio" name="toolMode" value="wand" checked> 🪄 魔法棒
+                        </label>
+                        <label class="btn-toggle" title="框選區域清除">
+                            <input type="radio" name="toolMode" value="eraser"> ⬜ 框選清除
+                        </label>
+                    </div>
+                    <span class="wand-mode-group" id="wandModeGroup">
+                        <div class="btn-group btn-group-sm">
+                            <label class="btn-toggle btn-toggle-sm active" title="只對左上角背景色去背">
+                                <input type="radio" name="wandColorMode" value="background" checked> 背景色
+                            </label>
+                            <label class="btn-toggle btn-toggle-sm" title="對點擊位置的任意顏色去背">
+                                <input type="radio" name="wandColorMode" value="any"> 任意色
+                            </label>
+                        </div>
+                    </span>
                 </div>
 
                 <!-- De-back Tolerance -->
                 <div class="setting-row" id="toleranceSetting">
-                    <label>去背容許度: <span id="toleranceValue">60</span></label>
+                    <label>去背強度: <span id="toleranceValue">60</span></label>
                     <input type="range" id="toleranceRange" min="10" max="150" value="60"
                         style="width: 120px; vertical-align: middle;">
-                    <button id="lockToleranceBtn" class="btn btn-sm" title="鎖定初始去背容許度，之後調整滑桿不影響已鎖定的四角去背">確定</button>
+                    <button id="lockToleranceBtn" class="btn btn-sm" title="鎖定初始去背強度，之後調整滑桿不影響已鎖定的四角去背">確定</button>
                     <span id="lockedToleranceHint" class="tolerance-hint"></span>
                 </div>
 
-                <div class="setting-row">
-                    <label>微調位置：</label>
+                <div class="setting-row" id="positionZoomRow">
+                    <label>框線位置：</label>
                     <button id="moveLeft" class="btn btn-icon-only">←</button>
                     <button id="moveRight" class="btn btn-icon-only">→</button>
                     <button id="moveUp" class="btn btn-icon-only">↑</button>
                     <button id="moveDown" class="btn btn-icon-only">↓</button>
-                    <!-- Undo Button -->
-                    <button id="undoBtn" class="btn btn-icon-only" title="復原 (Undo)">↶</button>
-                    <span class="tool-divider">|</span>
-                    <label>縮放：</label>
-                    <button id="zoomOut" class="btn btn-icon-only" title="縮小">➖</button>
-                    <span id="zoomLevel">100%</span>
-                    <button id="zoomIn" class="btn btn-icon-only" title="放大">➕</button>
-                    <button id="zoomReset" class="btn btn-sm" title="重置縮放">重置</button>
+                    <span class="zoom-group">
+                        <label>圖片縮放：</label>
+                        <button id="zoomOut" class="btn btn-icon-only" title="縮小">➖</button>
+                        <span id="zoomLevel">100%</span>
+                        <button id="zoomIn" class="btn btn-icon-only" title="放大">➕</button>
+                        <button id="zoomReset" class="btn btn-sm" title="重置縮放">重置</button>
+                    </span>
                 </div>
 
-                <!-- Legacy Mode & Preview -->
-                <div class="setting-row">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" id="legacyModeToggle" style="margin-right: 4px;"> 經典綠幕
-                    </label>
-                    <button id="previewDebackBtn" class="btn btn-secondary" title="預覽去背效果">
-                        <span class="btn-icon">👁️</span> 試看去背
-                    </button>
-                </div>
+
 
 
 

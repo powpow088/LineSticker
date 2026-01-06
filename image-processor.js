@@ -26,7 +26,7 @@ let wandColorMode = 'background'; // 'background' or 'any'
 let eraserStartPoint = null; // {x, y} for box drag start
 let actionHistory = []; // Stack of {type: 'seed'|'box', data: ...}
 let isLegacyMode = false;
-let isDebackPreviewMode = false; // Preview mode for background removal
+let isDebackPreviewMode = true; // Preview mode for background removal (default ON)
 let lockedBaseTolerance = null; // Locked tolerance for initial background removal (corners)
 let zoomLevel = 1; // User zoom level (1 = 100%)
 
@@ -87,8 +87,8 @@ const elements = {
     lockToleranceBtn: document.getElementById('lockToleranceBtn'),
     lockedToleranceHint: document.getElementById('lockedToleranceHint'),
 
-    // Preview Deback Button
-    previewDebackBtn: document.getElementById('previewDebackBtn'),
+    // Reset Deback Button
+    resetDebackBtn: document.getElementById('resetDebackBtn'),
 
     // Zoom Controls
     zoomIn: document.getElementById('zoomIn'),
@@ -136,6 +136,9 @@ function bindEvents() {
     document.querySelectorAll('input[name="toolMode"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             currentTool = e.target.value;
+            // Update button group active state
+            document.querySelectorAll('#toolBtnGroup .btn-toggle').forEach(btn => btn.classList.remove('active'));
+            e.target.closest('.btn-toggle').classList.add('active');
             showToast(`已切換模式：${currentTool === 'wand' ? '魔法棒' : '框選清除'}`);
         });
     });
@@ -144,6 +147,9 @@ function bindEvents() {
     document.querySelectorAll('input[name="wandColorMode"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             wandColorMode = e.target.value;
+            // Update button group active state
+            document.querySelectorAll('#wandModeGroup .btn-toggle').forEach(btn => btn.classList.remove('active'));
+            e.target.closest('.btn-toggle').classList.add('active');
             showToast(`魔法棒模式：${wandColorMode === 'background' ? '背景色' : '任意色'}`);
         });
     });
@@ -153,9 +159,8 @@ function bindEvents() {
         elements.legacyModeToggle.addEventListener('change', (e) => {
             isLegacyMode = e.target.checked;
             showToast(`已${isLegacyMode ? '開啟' : '關閉'}經典綠幕模式`);
-            if (isDebackPreviewMode) {
-                drawPreviewWithDeback();
-            }
+            // Always refresh with deback since default is ON
+            drawPreviewWithDeback();
         });
     }
 
@@ -191,9 +196,9 @@ function bindEvents() {
     elements.enableMainSelect.addEventListener('change', toggleMainSelect);
     elements.redownloadBtn.addEventListener('click', redownloadWithNewMain);
 
-    // Preview Deback Button
-    if (elements.previewDebackBtn) {
-        elements.previewDebackBtn.addEventListener('click', toggleDebackPreview);
+    // Reset Deback Button
+    if (elements.resetDebackBtn) {
+        elements.resetDebackBtn.addEventListener('click', resetDeback);
     }
 
     // Lock Tolerance Button
@@ -270,19 +275,19 @@ function updateWandModeVisibility() {
 function lockBaseTolerance() {
     const currentTolerance = parseInt(elements.toleranceRange.value) || 60;
     lockedBaseTolerance = currentTolerance;
-    
+
     // Update UI
     if (elements.lockedToleranceHint) {
-        elements.lockedToleranceHint.textContent = `(已鎖定: ${lockedBaseTolerance})`;
+        elements.lockedToleranceHint.textContent = '已鎖定';
         elements.lockedToleranceHint.classList.add('locked');
     }
     if (elements.lockToleranceBtn) {
         elements.lockToleranceBtn.textContent = '✓ 已確定';
         elements.lockToleranceBtn.classList.add('locked');
     }
-    
-    showToast(`初始去背容許度已鎖定為 ${lockedBaseTolerance}`, 'success');
-    
+
+    showToast(`初始去背強度已鎖定為 ${lockedBaseTolerance}`, 'success');
+
     // Refresh preview if in deback mode
     if (isDebackPreviewMode) {
         drawPreviewWithDeback();
@@ -291,7 +296,7 @@ function lockBaseTolerance() {
 
 function unlockBaseTolerance() {
     lockedBaseTolerance = null;
-    
+
     // Update UI
     if (elements.lockedToleranceHint) {
         elements.lockedToleranceHint.textContent = '';
@@ -303,27 +308,24 @@ function unlockBaseTolerance() {
     }
 }
 
-function toggleDebackPreview() {
+function resetDeback() {
     if (!imageElement) {
         showToast('請先上傳圖片', 'error');
         return;
     }
 
-    isDebackPreviewMode = !isDebackPreviewMode;
+    // Clear all deback operations
+    userSeeds = [];
+    eraserBoxes = [];
+    actionHistory = [];
+    lockedBaseTolerance = null;
 
-    if (isDebackPreviewMode) {
-        // Enable preview mode
-        elements.previewDebackBtn.classList.add('active');
-        elements.previewDebackBtn.innerHTML = '<span class="btn-icon">👁️</span> 關閉去背預覽';
-        showToast('去背預覽模式已開啟 - 點擊圖片可增加去背點', 'success');
-        drawPreviewWithDeback();
-    } else {
-        // Disable preview mode
-        elements.previewDebackBtn.classList.remove('active');
-        elements.previewDebackBtn.innerHTML = '<span class="btn-icon">👁️</span> 試看去背';
-        showToast('去背預覽模式已關閉', 'success');
-        drawPreview();
-    }
+    // Reset locked tolerance UI
+    unlockBaseTolerance();
+
+    // Redraw with fresh deback (only auto corners if not legacy mode)
+    showToast('已重置所有去背操作', 'success');
+    drawPreviewWithDeback();
 }
 
 function handlePreviewClick(e) {
@@ -397,7 +399,8 @@ function loadImage(file) {
             // Auto-detect grid size based on image aspect ratio
             autoDetectGridSize();
             showStep(2);
-            drawPreview();
+            // Default to debacked preview
+            drawPreviewWithDeback();
         };
         imageElement.src = uploadedImage;
     };
@@ -441,7 +444,7 @@ function autoDetectGridSize() {
 function updateGridSettings() {
     gridCols = parseInt(elements.gridCols.value);
     gridRows = parseInt(elements.gridRows.value);
-    
+
     // If in deback preview mode, redraw with deback; otherwise just redraw normal
     if (isDebackPreviewMode) {
         drawPreviewWithDeback();
@@ -484,6 +487,12 @@ async function drawPreviewWithDeback() {
     const canvas = elements.previewCanvas;
     const ctx = canvas.getContext('2d');
 
+    // Set canvas size to match image (scaled down if too large) - MUST do this first!
+    const maxWidth = 900;
+    scale = Math.min(1, maxWidth / imageElement.width);
+    canvas.width = imageElement.width * scale;
+    canvas.height = imageElement.height * scale;
+
     // Use a temp canvas to process the full image at scale
     // Note: Applying flood fill on the scaled down canvas for performance in preview
     const tempCanvas = document.createElement('canvas');
@@ -494,8 +503,8 @@ async function drawPreviewWithDeback() {
 
     // Apply Flood Fill
     // Scale user seeds to match the current canvas size, preserving tolerance and color
-    const scaledSeeds = userSeeds.map(s => ({ 
-        x: s.x * scale, 
+    const scaledSeeds = userSeeds.map(s => ({
+        x: s.x * scale,
         y: s.y * scale,
         tolerance: s.tolerance,
         color: s.color
@@ -1080,7 +1089,7 @@ async function applySmartFloodFill(canvas, extraSeeds = []) {
 
     // Global Tolerance (for auto-detect)
     const globalTolerance = parseInt(elements.toleranceRange.value) || 60;
-    
+
     // Use locked tolerance for corners if available, otherwise use current slider value
     const cornerTolerance = lockedBaseTolerance !== null ? lockedBaseTolerance : globalTolerance;
 
@@ -1722,7 +1731,7 @@ function addSeedFromEvent(e) {
         tempC.width = 1;
         tempC.height = 1;
         const tempCtx = tempC.getContext('2d');
-        
+
         if (wandColorMode === 'background') {
             // 背景色模式：取樣左上角 (0,0) 的顏色
             tempCtx.drawImage(imageElement, 0, 0);
@@ -1779,7 +1788,7 @@ function resetAll() {
     actionHistory = [];
     isLegacyMode = false;
     if (elements.legacyModeToggle) elements.legacyModeToggle.checked = false;
-    
+
     // Reset locked tolerance
     unlockBaseTolerance();
 

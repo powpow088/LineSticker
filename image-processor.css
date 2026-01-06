@@ -605,7 +605,12 @@
 /* Tool Divider & Wand Mode Options */
 .tool-divider {
     color: var(--border);
-    margin: 0 8px;
+    margin: 0 4px;
+}
+
+/* Fix spacing in tool mode row - remove min-width for inline labels */
+#toolModeSetting label {
+    min-width: unset;
 }
 
 .wand-mode-option {
@@ -619,10 +624,69 @@
 
 /* Wand Mode Group */
 .wand-mode-group {
-    display: inline;
+    display: inline-flex;
+    align-items: center;
     transition: opacity 0.2s;
+    margin-left: 8px;
+}
+
+/* Button Group */
+.btn-group {
+    display: inline-flex;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group-sm {
+    box-shadow: none;
+}
+
+.btn-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    background: white;
+    border: 1px solid var(--border);
+    cursor: pointer;
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s;
+    margin: 0;
+    min-width: unset;
+}
+
+.btn-toggle:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.btn-toggle:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    border-left: none;
+}
+
+.btn-toggle:not(:first-child):not(:last-child) {
+    border-left: none;
+}
+
+.btn-toggle input[type="radio"] {
+    display: none;
+}
+
+.btn-toggle:hover {
+    background: var(--primary-light);
+}
+
+.btn-toggle.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Small variant */
+.btn-toggle-sm {
+    padding: 4px 10px;
+    font-size: 0.8rem;
 }
 
 /* Zoom Level Display */
@@ -653,13 +717,12 @@
 /* Responsive */
 @media (max-width: 600px) {
     .setting-row {
-        flex-wrap: nowrap;
-        overflow-x: auto;
+        flex-wrap: wrap;
         gap: 8px;
     }
 
     .setting-row label {
-        min-width: 70px;
+        min-width: unset;
         font-size: 0.9rem;
     }
 
@@ -673,6 +736,10 @@
         width: 32px;
         height: 32px;
         font-size: 0.9rem;
+    }
+
+    .btn-group {
+        flex-wrap: wrap;
     }
 
     .offset-display {
@@ -694,6 +761,36 @@
     .toggle-hint {
         display: none;
     }
+
+    /* 工具列自動換行 */
+    #toolModeSetting {
+        gap: 6px;
+    }
+
+    .wand-mode-group {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 4px;
+    }
+
+    /* 圖片縮放整組換行 */
+    .zoom-group {
+        width: 100%;
+        margin-top: 8px;
+    }
+}
+
+/* Zoom Group - 桌面版同一行 */
+.zoom-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+}
+
+.zoom-group label {
+    min-width: unset;
+    margin-right: 4px;
 }
 
 /* Main Image Selection */
