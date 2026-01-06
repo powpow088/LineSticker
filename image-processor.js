@@ -278,7 +278,7 @@ function lockBaseTolerance() {
 
     // Update UI
     if (elements.lockedToleranceHint) {
-        elements.lockedToleranceHint.textContent = '已鎖定';
+        elements.lockedToleranceHint.textContent = '';
         elements.lockedToleranceHint.classList.add('locked');
     }
     if (elements.lockToleranceBtn) {
