@@ -34,6 +34,7 @@ const elements = {
     characterOutline: document.getElementById('characterOutline'),
     vectorArt: document.getElementById('vectorArt'),
     vectorArtOption: document.getElementById('vectorArtOption'),
+    blackOutline: document.getElementById('blackOutline'),
 
     // Reference Image
     refImageInstruction: document.getElementById('refImageInstruction')
@@ -151,6 +152,7 @@ function bindEvents() {
     // New Options Change
     elements.characterOutline.addEventListener('change', updatePrompt);
     elements.vectorArt.addEventListener('change', updatePrompt);
+    elements.blackOutline.addEventListener('change', updatePrompt);
 
     // Output Settings Change
     elements.outputCount.addEventListener('change', () => {
@@ -360,13 +362,37 @@ function generatePrompt() {
     }
 
     // Add layout constraints
-    constraintsList += `\n* **Layout:** Text should not cover the character's face. Balance text and character proportions.`;
+    constraintsList += `\\n* **Layout:** Text should not cover the character's face. Balance text and character proportions.`;
 
     // Build Style line
     let fullStylePrompt = stylePrompt;
 
-    // Add character outline if checked
-    const outlinePrompt = elements.characterOutline.checked ? ', thick white stroke around each character silhouette (NOT around sticker cells)' : '';
+    // Build outline prompts based on checkbox states
+    let outlinePrompts = [];
+    const hasTextWhiteOutline = elements.vectorArt.checked;
+    const hasCharacterWhiteOutline = elements.characterOutline.checked;
+    const hasBlackOutline = elements.blackOutline.checked;
+
+    // Character outline
+    if (hasCharacterWhiteOutline) {
+        outlinePrompts.push('thick white stroke around each character silhouette (NOT around sticker cells)');
+    }
+    if (hasBlackOutline) {
+        outlinePrompts.push('black outline around each character');
+    }
+
+    // No outline prohibition - when both white outline options are unchecked
+    let noOutlinePrompt = '';
+    if (!hasTextWhiteOutline && !hasCharacterWhiteOutline) {
+        noOutlinePrompt = `\\n* **ABSOLUTELY NO white lines, white outlines, white borders, or any visual separation stroke around characters or text.**`;
+    }
+
+    const outlinePrompt = outlinePrompts.length > 0 ? ', ' + outlinePrompts.join(', ') : '';
+
+    // Add no-outline constraint if applicable
+    if (noOutlinePrompt) {
+        constraintsList += noOutlinePrompt;
+    }
 
     // Generate Final Prompt
     const prompt = `${refImageInstruction}**[Role & Style]**
