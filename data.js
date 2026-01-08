@@ -246,11 +246,11 @@ const THEMES = {
     }
 };
 
-// 風格選項
+// 風格選項  2D flat sticker art
 const STYLES = {
     cute_chibi: {
         name: "🎀 Q版",
-        prompt: "Cute chibi style, adorable, lively, 2D flat sticker art, thick white outline, vibrant colors"
+        prompt: "Cute chibi style, adorable, lively,  vibrant colors"
     },
     realistic: {
         name: "📷 照片寫實",
@@ -294,15 +294,15 @@ const STYLES = {
 const TEXT_STYLES = {
     chibi_pop_art: {
         name: "🎀 可愛Q版 Pop Art",
-        prompt: "可愛 Q 版 Pop Art 字型, bold rounded cute text with thick white outline, vibrant colorful, playful and adorable"
+        prompt: "可愛 Q 版 Pop Art 字型, bold rounded cute text, vibrant colorful, playful and adorable"
     },
     festival: {
         name: "🎀 漸層圓體",
-        prompt: "Bold rounded cute Chinese font with white outline stroke. Warm and soft color palette (soft red, warm orange, gentle brown). Subtle gradient effect, harmonious with the character style"
+        prompt: "Bold rounded cute Chinese font. Warm and soft color palette (soft red, warm orange, gentle brown). Subtle gradient effect, harmonious with the character style"
     },
     cute_outline: {
         name: "🐰 可愛描邊",
-        prompt: "Bold rounded cute font with thick white outline stroke. Warm brown/chocolate solid color text, no gradient. Simple and clean, highly readable"
+        prompt: "Bold rounded cute font. Warm brown/chocolate solid color text, no gradient. Simple and clean, highly readable"
     },
     comic: {
         name: "💥 漫畫音效",
@@ -310,11 +310,11 @@ const TEXT_STYLES = {
     },
     mixed_styles: {
         name: "🎨 混合風格",
-        prompt: "For each sticker, automatically choose the most suitable text style based on the emotion and context: Happy/Festive → warm rounded font with gradient; Cute/Shy → brown outlined text; Excited/Surprised → comic style with action lines; Elegant/Thanks → handwritten style; Mysterious/Halloween → neon glowing; Important/Emphasis → 3D embossed. Use thick white outline on all text."
+        prompt: "Automatically choose the most suitable text style based on the emotion and context: Happy/Festive → warm rounded font with gradient; Cute/Shy → brown outlined text; Excited/Surprised → comic style with action lines; Elegant/Thanks → handwritten style; Mysterious/Halloween → neon glowing; Important/Emphasis → 3D embossed."
     },
     dynamic: {
         name: "🎭 情境混搭",
-        prompt: "Vary the text style for each sticker based on its emotion. Use bubbly rounded text for happy emotions, bold comic text for excited emotions, soft handwritten text for calm emotions. Be creative with text colors and effects"
+        prompt: "Vary the text style for each based on its emotion. Use bubbly rounded text for happy emotions, bold comic text for excited emotions, soft handwritten text for calm emotions. Be creative with text colors and effects"
     },
     neon: {
         name: "💡 霓虹發光",
@@ -370,7 +370,7 @@ const TEXT_POSITIONS = {
     },
     bottom: {
         name: "⬇️ 底部標註",
-        prompt: "text at the bottom of the sticker"
+        prompt: "text at the bottom"
     }
 };
 

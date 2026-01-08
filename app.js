@@ -48,11 +48,8 @@ function init() {
     bindEvents();
     loadThemeItems('greetings');
 
-    // Initialize vector art option visibility based on default style
-    const chibiStyles = ['cute_chibi', 'anime_chibi'];
-    if (chibiStyles.includes(elements.styleSelect.value)) {
-        elements.vectorArtOption.classList.remove('hidden');
-    }
+    // Show text outline option (always visible now)
+    elements.vectorArtOption.classList.remove('hidden');
 
     updatePrompt();
 }
@@ -141,15 +138,8 @@ function bindEvents() {
         updatePrompt();
     });
 
-    // Style Change - show/hide vector art option for chibi styles
+    // Style Change
     elements.styleSelect.addEventListener('change', (e) => {
-        const val = e.target.value;
-        const chibiStyles = ['cute_chibi', 'anime_chibi'];
-        if (chibiStyles.includes(val)) {
-            elements.vectorArtOption.classList.remove('hidden');
-        } else {
-            elements.vectorArtOption.classList.add('hidden');
-        }
         updatePrompt();
     });
 
@@ -312,9 +302,13 @@ function generatePrompt() {
             break;
     }
 
-    // Build Text Style Line
+    // Build Text Style Line with optional white outline
     let textStyleLine = '';
-    const textParts = [textStylePrompt, textLanguagePrompt].filter(p => p);
+    let finalTextStyle = textStylePrompt;
+    if (elements.vectorArt.checked && textStylePrompt) {
+        finalTextStyle += ', with thick white outline';
+    }
+    const textParts = [finalTextStyle, textLanguagePrompt].filter(p => p);
     if (textParts.length > 0) {
         textStyleLine = `**Text Style:** ${textParts.join(', ')}.`;
     }
@@ -352,7 +346,6 @@ function generatePrompt() {
   - ABSOLUTELY NO grid lines, borders, dividers, frames, or separators between stickers.
   - ABSOLUTELY NO white lines or any visual separation between sticker cells.
   - The green background must flow seamlessly across the entire canvas as ONE piece.
-  - Characters should have a visible white outline/stroke to separate from green background.
   - **Do NOT use green color** for the character's clothing or accessories.
   - Think of the canvas as ONE green paper with characters placed on it, NOT individual cells.`;
     }
@@ -369,14 +362,8 @@ function generatePrompt() {
     // Add layout constraints
     constraintsList += `\n* **Layout:** Text should not cover the character's face. Balance text and character proportions.`;
 
-    // Build Style line with optional enhancements
+    // Build Style line
     let fullStylePrompt = stylePrompt;
-
-    // Add vector art for chibi styles if checked
-    const chibiStyles = ['cute_chibi', 'anime_chibi'];
-    if (chibiStyles.includes(styleKey) && elements.vectorArt.checked) {
-        fullStylePrompt = `High-quality vector sticker art, ${fullStylePrompt}`;
-    }
 
     // Add character outline if checked
     const outlinePrompt = elements.characterOutline.checked ? ', thick white stroke around each character silhouette (NOT around sticker cells)' : '';
